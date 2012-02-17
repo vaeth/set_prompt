@@ -18,7 +18,7 @@ set_prompt() {
 }
 
 # For bash, we patch the above function to add the arguments -b.
-# For broken bash version, also add the argument -l
+# For broken bash version, also add the argument -l0
 
 if [ -n "${BASH}" ]
 then	if [ "${BASH_VERSINFO[0]}" -eq 3 ]  && [ "${BASH_VERSINFO[1]}" -eq 1 ] \
@@ -27,7 +27,7 @@ then	if [ "${BASH_VERSINFO[0]}" -eq 3 ]  && [ "${BASH_VERSINFO[1]}" -eq 1 ] \
 		# PS1='$(echo "Strange \[\e[0;32m\]Prompt\[\e[0m\] ")'
 		eval "$(a=$(declare -f set_prompt)
 		b='{'
-		c='{ set -- -bl "${@}"
+		c='{ set -- -bl0 "${@}"
 		'
 		printf '%s' "${a/${b}/${c}}")"
 	else	eval "$(a=$(declare -f set_prompt)
@@ -37,7 +37,3 @@ then	if [ "${BASH_VERSINFO[0]}" -eq 3 ]  && [ "${BASH_VERSINFO[1]}" -eq 1 ] \
 		printf '%s' "${a/${b}/${c}}")"
 	fi
 fi
-
-# Finally, we call the (possibly patched) function
-
-set_prompt

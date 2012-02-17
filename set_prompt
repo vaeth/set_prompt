@@ -9,34 +9,52 @@ Echon() {
 	printf '%s' "${*}"
 }
 
-escape=`printf '\033'`
+zsh_escape="`printf '\033'`"
+bash_escape='\e'
 
-black="${escape}[0;30m"
-blue="${escape}[0;34m"
-green="${escape}[0;32m"
-cyan="${escape}[0;36m"
-red="${escape}[0;31m"
-purple="${escape}[0;35m"
-brown="${escape}[0;33m"
-lightgray="${escape}[0;37m"
-darkgray="${escape}[1;30m"
-lightblue="${escape}[1;34m"
-lightgreen="${escape}[1;32m"
-lightcyan="${escape}[1;36m"
-lightred="${escape}[1;31m"
-lightpurple="${escape}[1;35m"
-yellow="${escape}[1;33m"
-white="${escape}[1;37m"
-default="${escape}[0m"
+zsh_charseven="`printf '\007'`"
+bash_charseven='\007'
 
-# Bash interprets \\ in PS1 not as \
-# So we have to take care for special escapes:
+zsh_backslash='\'
+bash_backslash='\\'
 
-starthstatus="${escape}"']0;'
-endhstatus=`printf '\007'`
-startsstatus="${escape}"'k'
-zsh_endsstatus="${escape}"'\'
-bash_endsstatus="${escape}"'\\'
+Color() {
+	if ${zsh_readable}
+	then	Echon "\$${1}"
+	else	Echon "${escape}${2}"
+	fi
+}
+
+black='`Color "fg_no_bold[black]" "[0;30m"`'
+blue='`Color "fg_no_bold[blue]" "[0;34m"`'
+green='`Color "fg_no_bold[green]" "[0;32m"`'
+cyan='`Color "fg_no_bold[cyan]" "[0;36m"`'
+red='`Color "fg_no_bold[red]" "[0;31m"`'
+purple='`Color "fg_no_bold[magenta]" "[0;35m"`'
+brown='`Color "fg_no_bold[yellow]" "[0;33m"`'
+lightgray='`Color "fg_no_bold[white]" "[0;37m"`'
+darkgray='`Color "fg_bold[black]" "[1;30m"`'
+lightblue='`Color "fg_bold[blue]" "[1;34m"`'
+lightgreen='`Color "fg_bold[green]" "[1;32m"`'
+lightcyan='`Color "fg_bold[cyan]" "[1;36m"`'
+lightred='`Color "fg_bold[red]" "[1;31m"`'
+lightpurple='`Color "fg_bold[magenta]" "[1;35m"`'
+yellow='`Color "fg_bold[yellow]" "[1;33m"`'
+white='`Color "fg_bold[white]" "[1;37m"`'
+backblack='`Color "bg[black]" "[0;40m"`'
+backblue='`Color "bg[blue]" "[0;44m"`'
+backgreen='`Color "bg[green]" "[0;42m"`'
+backcyan='`Color "bg[cyan]" "[0;46m"`'
+backred='`Color "bg[red]" "[0;41m"`'
+backpurple='`Color "bg[magenta]" "[0;45m"`'
+backbrown='`Color "bg[yellow]" "[0;43m"`'
+backlightgray='`Color "bg[white]" "[0;47m"`'
+default='`Color "reset_color" "[0m"`'
+
+starthstatus='${escape}]0;'
+endhstatus='${charseven}'
+startsstatus='${escape}k'
+endsstatus='${escape}${backslash}'
 
 color_user="${brown}"
 color_at="${cyan}"
@@ -53,9 +71,10 @@ color_vcsend="${default}"
 color_dir="${lightgreen}"
 color_dots="${blue}"
 color_prompt="${yellow}"
-color_endall="${default}"
+color_trail="${default}"
+color_endall=''
 
-BraceColors() {
+SetColors() {
 	for var in \
 		user \
 		at \
@@ -72,9 +91,11 @@ BraceColors() {
 		dir \
 		dots \
 		prompt \
+		trail \
 		endall
 	do	eval "if ${color} && [ -n \"\${color_${var}}\" ]
-		then	col_${var}=\"\${ps_open}\${color_${var}}\${ps_close}\"
+		then	eval \"color_${var}=\\\"\${color_${var}}\\\"\"
+			col_${var}=\"\${ps_open}\${color_${var}}\${ps_close}\"
 		else	col_${var}=''
 		fi"
 	done
@@ -100,7 +121,9 @@ SetEscape() {
 	else	prevar='bash_'
 	fi
 	for var in \
-		endsstatus \
+		escape \
+		charseven \
+		backslash \
 		ps_open \
 		ps_close \
 		ps_dir \
@@ -111,16 +134,27 @@ SetEscape() {
 	done
 }
 
+SetIndirect() {
+	for var in \
+		starthstatus \
+		endhstatus \
+		startsstatus \
+		endsstatus
+	do	eval "eval \"${var}=\\\"\${${var}}\\\"\""
+	done
+}
+
 SetStatus() {
-	xtstatus_status='%(?..:%?)'
+	hstatus_status='%(?..:%?)'
 	sstatus_status='%(?.. %?)'
 	ps_status="%(?..${col_errbrace}(${col_errstatus}%?${col_errbrace}%))"
 }
 
 text_at='@'
-text_open='('
-text_close=')'
 text_dots='...'
+text_vcsbranchsep=':'
+text_vcsstatussep=':'
+text_trail=' '
 
 Usage() {
 	Echo \
@@ -129,7 +163,10 @@ Usage() {
 The config_file is a POSIX file which is sourced by this script.
 You can use it to set e.g. different colors.
 options:
--b Output for bash instead of zsh (implies -V)
+-b Output for bash instead of zsh (implies -VE)
+-r Use readable (non-binary) output. For zsh, this prompt usually requires:
+   autoload -Uz colors && colors
+   escape=\$'\033' && charseven=\$'\007'
 -C No colorized prompt
 -s Use screen statusline (even if TERM is not in the supported list)
 -x Use hardstatus line (even if TERM is not in the supported list)
@@ -137,40 +174,45 @@ options:
 -X No hardstatus line
 -v Support VCSBRANCH/VCSSTATUS (even with -b)
 -V Do not support VCSBRANCH/VCSSTATUS
--l Long path (i.e. no path shortening)
+-l MAXLEN allow directory path to grow maximal to MAXLEN (0 means no limit)
+-L LEFT   keep at least LEFT characters of directory path before the dots
 -e extra text (instead of separator)
--E Show error status (if output is for zsh)
+-E Do not show error status
 -h Show this help text
 -c FILE  Use FILE instead of set_prompt.config; an empty FILE skips sourcing
 -- last option" >&2
 	exit ${1:-1}
 }
 
+readable=false
 color=:
-cut=:
 zsh=:
-errstatus=false
+errstatus=:
 separator=':'
 softstatus=''
 hardstatus=''
 vcs=':'
+maxlen=24
+leftkeep=8
 unset extra_text
 config_file='set_prompt.config'
 OPTIND=1
-while getopts 'Ee:sSxXlCbvVc:hH?' arg
+while getopts 'rEe:sSxXCbvVl:L:c:hH?' arg
 do	case "${arg}" in
-	E)	errstatus=:;;
+	r)	readable=:;;
+	E)	errstatus=false;;
 	e)	extra_text="${OPTARG}";;
 	s)	softstatus=:;;
 	S)	softstatus=false;;
 	x)	hardstatus=:;;
 	X)	hardstatus=false;;
-	l)	cut=false;;
 	C)	color=false;;
 	b)	zsh=false
 		vcs=false;;
 	v)	vcs=:;;
 	V)	vcs=false;;
+	l)	maxlen="${OPTARG}";;
+	L)	leftkeep="${OPTARG}";;
 	c)	config_file="${OPTARG}";;
 	*)	Usage;;
 	esac
@@ -181,10 +223,30 @@ if [ -n "${config_file}" ]
 then	PATH="${PATH}${PATH:+:}/etc:" . "${config_file}"
 fi
 
-${zsh} || errstatus=false
+case "${maxlen:-x}" in
+*[!0-9]*)
+	maxlen=0
+;;
+esac
+
+if ${zsh}
+then	zsh_readable=${readable}
+else	zsh_readable=false
+	errstatus=false
+fi
+
+if ! ${readable}
+then	bash_escape="${zsh_escape}"
+	bash_charseven="${zsh_charseven}"
+elif ${zsh}
+then	zsh_escape='${escape}'
+	zsh_charseven='${charseven}'
+	zsh_backslash="${bash_backslash}"
+fi
 
 SetEscape
-BraceColors
+SetColors
+SetIndirect
 SetStatus
 
 if [ "${extra_text:+set}" = set ]
@@ -218,7 +280,7 @@ then	SetStatus
 else	unset hstatus_status sstatus_status ps_status
 fi
 
-if ${cut}
+if [ ${maxlen} -gt 0 ]
 then	statusdir='${d}'
 	ps_dir='${c}'
 else	statusdir="${ps_dir}"
@@ -245,27 +307,49 @@ fi
 ps="${ps}${ps_user}${col_at}${text_at}${col_host}${ps_host}"
 ps="${ps}${col_separator}${separator}${col_dir}${ps_dir}${ps_status}"
 if ${vcs}
-then	ps="${ps}\${VCSBRANCH:+\"${col_vcsbranchsep}:${col_vcsbranch}"
-	ps="${ps}\${VCSBRANCH}${col_vcsend}\"}"
-	ps="${ps}\${VCSSTATUS:+\"${col_vcsstatussep}:${col_vcsstatus}"
-	ps="${ps}\${VCSSTATUS}${col_vcsend}\"}"
+then	ps="${ps}\${VCSBRANCH:+\"${col_vcsbranchsep}${text_vcsbranchsep}"
+	ps="${ps}${col_vcsbranch}\${VCSBRANCH}${col_vcsend}\"}"
+	ps="${ps}\${VCSSTATUS:+\"${col_vcsstatussep}${text_vcsstatussep}"
+	ps="${ps}${col_vcsstatus}\${VCSSTATUS}${col_vcsend}\"}"
 fi
-ps="${ps}${col_prompt}${ps_prompt}${col_endall} "
-if ${cut}
-then	dots="${col_dots}${text_dots}${col_dir}"
+ps="${ps}${col_prompt}${ps_prompt}${col_trail}${text_trail}${col_endall}"
+if [ ${maxlen} -gt 0 ]
+then	[ ${maxlen} -gt ${#text_dots} ] || maxlen=${#text_dots}
+	case "${leftkeep:-x}" in
+	*[!0-9]*)
+		leftkeep=0
+	;;
+	esac
+	leftmax=$(( ${maxlen} - ${#text_dots} ))
+	[ ${leftkeep} -le ${leftmax} ] || leftkeep=${leftmax}
+	rightkeep=$(( ${maxlen} - ${leftkeep} - ${#text_dots} ))
+	d2=''
+	d3=''
 	if ${zsh}
-	then	d1='d="$(print -P "%~")"'
-		d2='"${d[0,8]}'
-		d3='${d[${#d}-15,${#d}]}"'
-	else	d1='d="${PWD#~}"; [ "${d}" = "${PWD}" ] || d="~${d}"'
-		d2='${d:0:8}'
-		d3='${d: -16}'
+	then	d1='d="$(print -P '\''%~'\'')"'
+		if [ ${leftkeep} -eq 1 ]
+		then	d2='${d[1]}'
+		elif [ ${leftkeep} -gt 1 ]
+		then	d2='${d[1,'"${leftkeep}"']}'
+		fi
+		if [ ${rightkeep} -gt 0 ]
+		then	rightkeep=$(( ${rightkeep} - 1 ))
+			if [ ${rightkeep} -eq 0 ]
+			then	d3='${d[${#d}]}'
+			else	d3='${d[${#d}-'"${rightkeep}"',${#d}]}'
+			fi
+		fi
+	else	d1='d="${PWD#~}"
+[ "${d}" = "${PWD}" ] || d="~${d}"'
+		[ ${leftkeep} -le 0 ] || d2='${d:0:'"${leftkeep}"'}'
+		[ ${rightkeep} -le 0 ] || d3='${d: -'"${rightkeep}"'}'
 	fi
-	d2='"${d/????????????????????????????*/'"${d2}"
-	d3="${d3}"'}"'
 	ps="\$(${d1}
-c=${d2}${dots}${d3}
-d=${d2}${text_dots}${d3}
+if [ \${#d} -le ${maxlen} ]
+then	c=\"\${d}\"
+else	c=\"${d2}${col_dots}${text_dots}${col_dir}${d3}\"
+	d=\"${d2}${text_dots}${d3}\"
+fi
 printf '%s' \"${ps}\")"
 fi
 Echon "${ps}"

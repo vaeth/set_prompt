@@ -27,10 +27,11 @@ So you should customize that file for your taste (e.g. to define the colors).
 
 There is a sample script
 	set_prompt.sh
-which, if sourced, defines and executes a function
+which, if sourced, defines a function
 	set_prompt
 which acts like the set_prompt program with the difference that is sends the
 output directly to PS1 and that appropriate options are used by default.
+(In particular, default options are set for broken bash versions.)
 The set_prompt.sh script makes use of particular variables, so you might
 want to look at the source and modify it for your needs before using it.
 

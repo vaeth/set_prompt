@@ -20,7 +20,7 @@ GitUpdate() {
 			continue
 		;;
 		esac
-		a+=($i[2])
+		a+=$i[2]
 	done
 	for i in $a
 	do	VCSSTATUS+=$i
