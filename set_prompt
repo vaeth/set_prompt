@@ -1,0 +1,271 @@
+#! /usr/bin/env sh
+# (C) Martin V\"ath <martin@mvath.de>
+
+Echo() {
+	printf '%s\n' "${*}"
+}
+
+Echon() {
+	printf '%s' "${*}"
+}
+
+escape=`printf '\033'`
+
+black="${escape}[0;30m"
+blue="${escape}[0;34m"
+green="${escape}[0;32m"
+cyan="${escape}[0;36m"
+red="${escape}[0;31m"
+purple="${escape}[0;35m"
+brown="${escape}[0;33m"
+lightgray="${escape}[0;37m"
+darkgray="${escape}[1;30m"
+lightblue="${escape}[1;34m"
+lightgreen="${escape}[1;32m"
+lightcyan="${escape}[1;36m"
+lightred="${escape}[1;31m"
+lightpurple="${escape}[1;35m"
+yellow="${escape}[1;33m"
+white="${escape}[1;37m"
+default="${escape}[0m"
+
+# Bash interprets \\ in PS1 not as \
+# So we have to take care for special escapes:
+
+starthstatus="${escape}"']0;'
+endhstatus=`printf '\007'`
+startsstatus="${escape}"'k'
+zsh_endsstatus="${escape}"'\'
+bash_endsstatus="${escape}"'\\'
+
+color_user="${brown}"
+color_at="${cyan}"
+color_host_normal="${green}"
+color_host_ssh="${lightred}"
+color_separator="${cyan}"
+color_errstatus="${lightred}"
+color_errbrace="${brown}"
+color_vcsbranchsep="${color_at}"
+color_vcsbranch="${lightpurple}"
+color_vcsstatussep="${color_at}"
+color_vcsstatus="${red}"
+color_vcsend="${default}"
+color_dir="${lightgreen}"
+color_dots="${blue}"
+color_prompt="${yellow}"
+color_endall="${default}"
+
+BraceColors() {
+	for var in \
+		user \
+		at \
+		host_normal \
+		host_ssh \
+		separator \
+		errstatus \
+		errbrace \
+		vcsbranchsep \
+		vcsbranch \
+		vcsstatussep \
+		vcsstatus \
+		vcsend \
+		dir \
+		dots \
+		prompt \
+		endall
+	do	eval "if ${color} && [ -n \"\${color_${var}}\" ]
+		then	col_${var}=\"\${ps_open}\${color_${var}}\${ps_close}\"
+		else	col_${var}=''
+		fi"
+	done
+}
+
+bash_ps_open='\['
+bash_ps_close='\]'
+bash_ps_dir='\w'
+bash_ps_user='\u'
+bash_ps_host='\h'
+bash_ps_prompt='\$'
+
+zsh_ps_open='%{'
+zsh_ps_close='%}'
+zsh_ps_dir='%~'
+zsh_ps_user='%n'
+zsh_ps_host='%m'
+zsh_ps_prompt='%#'
+
+SetEscape() {
+	if ${zsh}
+	then	prevar='zsh_'
+	else	prevar='bash_'
+	fi
+	for var in \
+		endsstatus \
+		ps_open \
+		ps_close \
+		ps_dir \
+		ps_user \
+		ps_host \
+		ps_prompt
+	do	eval "${var}=\"\${${prevar}${var}}\""
+	done
+}
+
+SetStatus() {
+	xtstatus_status='%(?..:%?)'
+	sstatus_status='%(?.. %?)'
+	ps_status="%(?..${col_errbrace}(${col_errstatus}%?${col_errbrace}%))"
+}
+
+text_at='@'
+text_open='('
+text_close=')'
+text_dots='...'
+
+Usage() {
+	Echo \
+"Usage: PS1=\"\$(${0##*/} [options] [config_file_options]; echo X)\" \\
+    && PS1=\${PS1%X}
+The config_file is a POSIX file which is sourced by this script.
+You can use it to set e.g. different colors.
+options:
+-b Output for bash instead of zsh (implies -V)
+-C No colorized prompt
+-s Use screen statusline (even if TERM is not in the supported list)
+-x Use hardstatus line (even if TERM is not in the supported list)
+-S Do not use screen statusline
+-X No hardstatus line
+-v Support VCSBRANCH/VCSSTATUS (even with -b)
+-V Do not support VCSBRANCH/VCSSTATUS
+-l Long path (i.e. no path shortening)
+-e extra text (instead of separator)
+-E Show error status (if output is for zsh)
+-h Show this help text
+-c FILE  Use FILE instead of set_prompt.config; an empty FILE skips sourcing
+-- last option" >&2
+	exit ${1:-1}
+}
+
+color=:
+cut=:
+zsh=:
+errstatus=false
+separator=':'
+softstatus=''
+hardstatus=''
+vcs=':'
+unset extra_text
+config_file='set_prompt.config'
+OPTIND=1
+while getopts 'Ee:sSxXlCbvVc:hH?' arg
+do	case "${arg}" in
+	E)	errstatus=:;;
+	e)	extra_text="${OPTARG}";;
+	s)	softstatus=:;;
+	S)	softstatus=false;;
+	x)	hardstatus=:;;
+	X)	hardstatus=false;;
+	l)	cut=false;;
+	C)	color=false;;
+	b)	zsh=false
+		vcs=false;;
+	v)	vcs=:;;
+	V)	vcs=false;;
+	c)	config_file="${OPTARG}";;
+	*)	Usage;;
+	esac
+done
+shift $(( ${OPTIND} - 1 ))
+
+if [ -n "${config_file}" ]
+then	PATH="${PATH}${PATH:+:}/etc:" . "${config_file}"
+fi
+
+${zsh} || errstatus=false
+
+SetEscape
+BraceColors
+SetStatus
+
+if [ "${extra_text:+set}" = set ]
+then	separator="${extra_text}"
+fi
+
+if [ -z "${SSH_TTY}${SSH_CONNECTION}" ]
+then	col_host="${col_host_normal}"
+else	col_host="${col_host_ssh}"
+fi
+
+if [ -z "${softstatus}" ]
+then	softstatus=false
+	case "${TERM}" in
+	screen*)
+		softstatus=:
+	;;
+	esac
+fi
+if [ -z "${hardstatus}" ]
+then	hardstatus=false
+	case "${TERM}" in
+	xterm*|screen*|rxvt*|aterm*|konsole*|gnome*|Eterm*|kterm*|interix*)
+		hardstatus=:
+	;;
+	esac
+fi
+
+if ${errstatus}
+then	SetStatus
+else	unset hstatus_status sstatus_status ps_status
+fi
+
+if ${cut}
+then	statusdir='${d}'
+	ps_dir='${c}'
+else	statusdir="${ps_dir}"
+fi
+
+ps=''
+if ${hardstatus} || ${softstatus}
+then	status_both="${ps_user}${text_at}${ps_host}${extra_text}${statusdir}"
+	if ${softstatus}
+	then	ps="${ps}${startsstatus}${status_both}"
+		ps="${ps}${sstatus_status}${endsstatus}"
+	fi
+	if ${hardstatus}
+	then	ps="${ps}${starthstatus}${status_both}"
+		ps="${ps}${hstatus_status}${endhstatus}"
+	fi
+fi
+
+if [ -n "${ps}" ]
+then	ps="${ps_open}${ps}${color_user}${ps_close}"
+else	ps="${col_user}"
+fi
+
+ps="${ps}${ps_user}${col_at}${text_at}${col_host}${ps_host}"
+ps="${ps}${col_separator}${separator}${col_dir}${ps_dir}${ps_status}"
+if ${vcs}
+then	ps="${ps}\${VCSBRANCH:+\"${col_vcsbranchsep}:${col_vcsbranch}"
+	ps="${ps}\${VCSBRANCH}${col_vcsend}\"}"
+	ps="${ps}\${VCSSTATUS:+\"${col_vcsstatussep}:${col_vcsstatus}"
+	ps="${ps}\${VCSSTATUS}${col_vcsend}\"}"
+fi
+ps="${ps}${col_prompt}${ps_prompt}${col_endall} "
+if ${cut}
+then	dots="${col_dots}${text_dots}${col_dir}"
+	if ${zsh}
+	then	d1='d="$(print -P "%~")"'
+		d2='"${d[0,8]}'
+		d3='${d[${#d}-15,${#d}]}"'
+	else	d1='d="${PWD#~}"; [ "${d}" = "${PWD}" ] || d="~${d}"'
+		d2='${d:0:8}'
+		d3='${d: -16}'
+	fi
+	d2='"${d/????????????????????????????*/'"${d2}"
+	d3="${d3}"'}"'
+	ps="\$(${d1}
+c=${d2}${dots}${d3}
+d=${d2}${text_dots}${d3}
+printf '%s' \"${ps}\")"
+fi
+Echon "${ps}"

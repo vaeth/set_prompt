@@ -1,0 +1,41 @@
+(C) Martin Väth <martin@mvath.de>
+This project is under the BSD license.
+
+Use an intelligent prompt for zsh or bash with status line support.
+
+This is a collection of scripts which allow you to display a prompt
+for zsh or bash and also setting a corresponding hardstatus line
+(if your terminal supports it).
+
+To install these scripts, copy them somewhere into your $PATH;
+set_prompt.config can alternatively also be copied into /etc.
+For Gentoo, there is an ebuild in the mv overlay (available by layman).
+
+The main program is
+	set_prompt
+To get help for this program, call
+	set_prompt -h
+
+The set_prompt program outputs a valid string for PS1 for zsh
+(or for bash if the -b option is used).
+It can be executed or also be sourced by zsh or by bash (which is faster).
+Note that even if sourced from bash, the -b option is not implied.
+
+By default, the set_prompt program sources the configuration file
+	set_prompt.config
+So you should customize that file for your taste (e.g. to define the colors).
+
+There is a sample script
+	set_prompt.sh
+which, if sourced, defines and executes a function
+	set_prompt
+which acts like the set_prompt program with the difference that is sends the
+output directly to PS1 and that appropriate options are used by default.
+The set_prompt.sh script makes use of particular variables, so you might
+want to look at the source and modify it for your needs before using it.
+
+Finally, the prompt supports also the variables VCSBRANCH and VCSSTATUS
+which might be changed for each prompt. For zsh, there is also a script
+	git_prompt.zsh
+which, if sourced, sets VCSBRANCH and VCSSTATUS correspondingly if you change
+into a git directory.
