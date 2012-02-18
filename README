@@ -17,8 +17,13 @@ To get help for this program, call
 	set_prompt -h
 
 The set_prompt program outputs a valid string for PS1 for zsh
-(or for bash if the -b option is used).
-It can be executed or also be sourced by zsh or by bash (which is faster).
+(or for bash if the -b option is used). If used with zsh, the prompt usually
+expects that the PROMPT_SUBST option is actived ("setopt promptsubst").
+
+The set_prompt program can be either executed or sourced by zsh, bash, or
+any other POSIX compatible shell. If you source it, you should source it in
+a subshell, of course (which happens automatically with `...`).
+The advantage of sourcing is that it is faster.
 Note that even if sourced from bash, the -b option is not implied.
 
 By default, the set_prompt program sources the configuration file

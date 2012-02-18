@@ -18,7 +18,7 @@ set_prompt() {
 }
 
 # For bash, we patch the above function to add the arguments -b.
-# For broken bash version, also add the argument -l0
+# For broken bash versions, also add the argument -l0
 
 if [ -n "${BASH}" ]
 then	if [ "${BASH_VERSINFO[0]}" -eq 3 ]  && [ "${BASH_VERSINFO[1]}" -eq 1 ] \

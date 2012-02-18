@@ -1,6 +1,9 @@
 #! /usr/bin/env sh
 # (C) Martin V\"ath <martin@mvath.de>
 
+name="${0##*/}"
+config_file="${0##*/}.config"
+
 Echo() {
 	printf '%s\n' "${*}"
 }
@@ -25,36 +28,53 @@ Color() {
 	fi
 }
 
-black='`Color "fg_no_bold[black]" "[0;30m"`'
-blue='`Color "fg_no_bold[blue]" "[0;34m"`'
-green='`Color "fg_no_bold[green]" "[0;32m"`'
-cyan='`Color "fg_no_bold[cyan]" "[0;36m"`'
-red='`Color "fg_no_bold[red]" "[0;31m"`'
-purple='`Color "fg_no_bold[magenta]" "[0;35m"`'
-brown='`Color "fg_no_bold[yellow]" "[0;33m"`'
-lightgray='`Color "fg_no_bold[white]" "[0;37m"`'
-darkgray='`Color "fg_bold[black]" "[1;30m"`'
-lightblue='`Color "fg_bold[blue]" "[1;34m"`'
-lightgreen='`Color "fg_bold[green]" "[1;32m"`'
-lightcyan='`Color "fg_bold[cyan]" "[1;36m"`'
-lightred='`Color "fg_bold[red]" "[1;31m"`'
-lightpurple='`Color "fg_bold[magenta]" "[1;35m"`'
-yellow='`Color "fg_bold[yellow]" "[1;33m"`'
-white='`Color "fg_bold[white]" "[1;37m"`'
-backblack='`Color "bg[black]" "[0;40m"`'
-backblue='`Color "bg[blue]" "[0;44m"`'
-backgreen='`Color "bg[green]" "[0;42m"`'
-backcyan='`Color "bg[cyan]" "[0;46m"`'
-backred='`Color "bg[red]" "[0;41m"`'
-backpurple='`Color "bg[magenta]" "[0;45m"`'
-backbrown='`Color "bg[yellow]" "[0;43m"`'
-backlightgray='`Color "bg[white]" "[0;47m"`'
-default='`Color "reset_color" "[0m"`'
+# Colors and attributes which can be used in configuration.
+# You must first specify colors and then other attributes.
 
-starthstatus='${escape}]0;'
-endhstatus='${charseven}'
-startsstatus='${escape}k'
-endsstatus='${escape}${backslash}'
+black='`Color "{fg_no_bold[black]}" "[0;30m"`'
+blue='`Color "{fg_no_bold[blue]}" "[0;34m"`'
+green='`Color "{fg_no_bold[green]}" "[0;32m"`'
+cyan='`Color "{fg_no_bold[cyan]}" "[0;36m"`'
+red='`Color "{fg_no_bold[red]}" "[0;31m"`'
+purple='`Color "{fg_no_bold[magenta]}" "[0;35m"`'
+brown='`Color "{fg_no_bold[yellow]}" "[0;33m"`'
+lightgray='`Color "{fg_no_bold[white]}" "[0;37m"`'
+darkgray='`Color "{fg_bold[black]}" "[1;30m"`'
+lightblue='`Color "{fg_bold[blue]}" "[1;34m"`'
+lightgreen='`Color "{fg_bold[green]}" "[1;32m"`'
+lightcyan='`Color "{fg_bold[cyan]}" "[1;36m"`'
+lightred='`Color "{fg_bold[red]}" "[1;31m"`'
+lightpurple='`Color "{fg_bold[magenta]}" "[1;35m"`'
+yellow='`Color "{fg_bold[yellow]}" "[1;33m"`'
+white='`Color "{fg_bold[white]}" "[1;37m"`'
+
+backblack='`Color "{bg[black]}" "[40m"`'
+backblue='`Color "{bg[blue]}" "[44m"`'
+backgreen='`Color "{bg[green]}" "[42m"`'
+backcyan='`Color "{bg[cyan]}" "[46m"`'
+backred='`Color "{bg[red]}" "[41m"`'
+backpurple='`Color "{bg[magenta]}" "[45m"`'
+backbrown='`Color "{bg[yellow]}" "[43m"`'
+backlightgray='`Color "{bg[white]}" "[47m"`'
+
+default='`Color "{reset_color}" "[0m"`'
+bold='`Color "{bold_color}" "[1m"`'
+faint='`Color "{escape}\${color[faint]}m" "[2m"`'
+standout='`Color "{escape}\${color[standout]}m" "[3m"`'
+underline='`Color "{escape}\${color[underline]}m" "[4m"`'
+blink='`Color "{escape}\${color[blink]}m" "[5m"`'
+reverse='`Color "{escape}\${color[reverse]}m" "[7m"`'
+conceal='`Color "{escape}\${color[conceal]}m" "[8m"`'
+
+# The default configuration:
+
+text_at='@'
+text_dots='...'
+text_vcsbranchsep=':'
+text_vcsstatussep=':'
+text_trail=' '
+
+# Colors for the configuration:
 
 color_user="${brown}"
 color_at="${cyan}"
@@ -74,39 +94,52 @@ color_prompt="${yellow}"
 color_trail="${default}"
 color_endall=''
 
-SetColors() {
-	for var in \
-		user \
-		at \
-		host_normal \
-		host_ssh \
-		separator \
-		errstatus \
-		errbrace \
-		vcsbranchsep \
-		vcsbranch \
-		vcsstatussep \
-		vcsstatus \
-		vcsend \
-		dir \
-		dots \
-		prompt \
-		trail \
-		endall
-	do	eval "if ${color} && [ -n \"\${color_${var}}\" ]
-		then	eval \"color_${var}=\\\"\${color_${var}}\\\"\"
-			col_${var}=\"\${ps_open}\${color_${var}}\${ps_close}\"
-		else	col_${var}=''
-		fi"
-	done
-}
+# All the above color_* variables must be listed here (without prefix color_)
+# If you add color variables in the configuration, you must also add them
+# to this list: You can use them in indirect variables with prefix col_
 
-bash_ps_open='\['
-bash_ps_close='\]'
-bash_ps_dir='\w'
-bash_ps_user='\u'
-bash_ps_host='\h'
-bash_ps_prompt='\$'
+color_vars='user
+at
+host_normal
+host_ssh
+separator
+errstatus
+errbrace
+vcsbranchsep
+vcsbranch
+vcsstatussep
+vcsstatus
+vcsend
+dir
+dots
+prompt
+trail
+endall'
+
+# Configuration indirect variables (can use col_ or stripped zsh/bash variables)
+
+hstatus_status='%(?..:%?)'
+sstatus_status='%(?.. %?)'
+ps_status='%(?..${col_errbrace}(${col_errstatus}%?${col_errbrace}%))'
+
+# Other indirect variables
+
+starthstatus='${escape}]0;'
+endhstatus='${charseven}'
+startsstatus='${escape}k'
+endsstatus='${escape}${backslash}'
+
+# List of indirect variables. The list can be modified in configuration.
+
+indirect_vars='hstatus_status
+sstatus_status
+ps_status
+starthstatus
+endhstatus
+startsstatus
+endsstatus'
+
+# Prompt escapes:
 
 zsh_ps_open='%{'
 zsh_ps_close='%}'
@@ -115,58 +148,35 @@ zsh_ps_user='%n'
 zsh_ps_host='%m'
 zsh_ps_prompt='%#'
 
-SetEscape() {
-	if ${zsh}
-	then	prevar='zsh_'
-	else	prevar='bash_'
-	fi
-	for var in \
-		escape \
-		charseven \
-		backslash \
-		ps_open \
-		ps_close \
-		ps_dir \
-		ps_user \
-		ps_host \
-		ps_prompt
-	do	eval "${var}=\"\${${prevar}${var}}\""
-	done
-}
+bash_ps_open='\['
+bash_ps_close='\]'
+bash_ps_dir='\w'
+bash_ps_user='\u'
+bash_ps_host='\h'
+bash_ps_prompt='\$'
 
-SetIndirect() {
-	for var in \
-		starthstatus \
-		endhstatus \
-		startsstatus \
-		endsstatus
-	do	eval "eval \"${var}=\\\"\${${var}}\\\"\""
-	done
-}
+# The following variables will be stripped from their zsh_ or bash_ prefix,
+# depending on the calling mode:
 
-SetStatus() {
-	hstatus_status='%(?..:%?)'
-	sstatus_status='%(?.. %?)'
-	ps_status="%(?..${col_errbrace}(${col_errstatus}%?${col_errbrace}%))"
-}
-
-text_at='@'
-text_dots='...'
-text_vcsbranchsep=':'
-text_vcsstatussep=':'
-text_trail=' '
+strip_vars='escape
+charseven
+backslash
+ps_open
+ps_close
+ps_dir
+ps_user
+ps_host
+ps_prompt'
 
 Usage() {
 	Echo \
-"Usage: PS1=\"\$(${0##*/} [options] [config_file_options]; echo X)\" \\
-    && PS1=\${PS1%X}
-The config_file is a POSIX file which is sourced by this script.
-You can use it to set e.g. different colors.
+"Usage: temp=\"\$(${name} [options] [args for ${config_file}]; echo X)\" "'\
+    && PS1="${temp%X}" ; [ -z "${ZSH_NAME}" ] || setopt promptsubst'"
 options:
 -b Output for bash instead of zsh (implies -VE)
 -r Use readable (non-binary) output. For zsh, this prompt usually requires:
    autoload -Uz colors && colors
-   escape=\$'\033' && charseven=\$'\007'
+   escape=\$'\\033'; charseven=\$'\\007'; backslash='\\'
 -C No colorized prompt
 -s Use screen statusline (even if TERM is not in the supported list)
 -x Use hardstatus line (even if TERM is not in the supported list)
@@ -174,20 +184,20 @@ options:
 -X No hardstatus line
 -v Support VCSBRANCH/VCSSTATUS (even with -b)
 -V Do not support VCSBRANCH/VCSSTATUS
--l MAXLEN allow directory path to grow maximal to MAXLEN (0 means no limit)
--L LEFT   keep at least LEFT characters of directory path before the dots
--e extra text (instead of separator)
 -E Do not show error status
 -h Show this help text
--c FILE  Use FILE instead of set_prompt.config; an empty FILE skips sourcing
--- last option" >&2
+-e TEXT   Use extra TEXT (instead of separator)
+-c FILE   Source FILE instead of ${config_file}; empty value skips sourcing
+-l MAXLEN Allow directory path to grow maximal to MAXLEN (0 means no limit)
+-L LEFT   Keep at least LEFT characters of directory path before the dots
+--        last option" >&2
 	exit ${1:-1}
 }
 
 readable=false
 color=:
 zsh=:
-errstatus=:
+skipstatus=false
 separator=':'
 softstatus=''
 hardstatus=''
@@ -195,12 +205,11 @@ vcs=':'
 maxlen=24
 leftkeep=8
 unset extra_text
-config_file='set_prompt.config'
 OPTIND=1
 while getopts 'rEe:sSxXCbvVl:L:c:hH?' arg
 do	case "${arg}" in
 	r)	readable=:;;
-	E)	errstatus=false;;
+	E)	skipstatus=:;;
 	e)	extra_text="${OPTARG}";;
 	s)	softstatus=:;;
 	S)	softstatus=false;;
@@ -219,6 +228,46 @@ do	case "${arg}" in
 done
 shift $(( ${OPTIND} - 1 ))
 
+# We define some functions early so that they can be used/modified in the
+# configuration if required.
+
+StripVars() {
+	if ${zsh}
+	then	prevar='zsh_'
+	else	prevar='bash_'
+	fi
+	for var in ${strip_vars}
+	do	eval "${var}=\"\${${prevar}${var}}\""
+	done
+}
+
+ColorVars() {
+	for var in ${color_vars}
+	do	eval "if ${color} && [ -n \"\${color_${var}}\" ]
+		then	eval \"color_${var}=\\\"\${color_${var}}\\\"\"
+			col_${var}=\"\${ps_open}\${color_${var}}\${ps_close}\"
+		else	col_${var}=''
+		fi"
+	done
+}
+
+IndirectVars() {
+	for var in ${indirect_vars}
+	do	eval "eval \"${var}=\\\"\${${var}}\\\"\""
+	done
+}
+
+# The wrapper for the above three functions.
+# If sourced from zsh, we must make sure that the variable lists are
+# indeed expanded, so we must switch on emulation mode.
+
+HandleVars() {
+	[ -n "${ZSH_NAME}" ] && emulate -L sh
+	StripVars
+	ColorVars
+	IndirectVars
+}
+
 if [ -n "${config_file}" ]
 then	PATH="${PATH}${PATH:+:}/etc:" . "${config_file}"
 fi
@@ -232,7 +281,7 @@ esac
 if ${zsh}
 then	zsh_readable=${readable}
 else	zsh_readable=false
-	errstatus=false
+	skipstatus=:
 fi
 
 if ! ${readable}
@@ -241,13 +290,10 @@ then	bash_escape="${zsh_escape}"
 elif ${zsh}
 then	zsh_escape='${escape}'
 	zsh_charseven='${charseven}'
-	zsh_backslash="${bash_backslash}"
+	zsh_backslash='${backslash}'
 fi
 
-SetEscape
-SetColors
-SetIndirect
-SetStatus
+HandleVars
 
 if [ "${extra_text:+set}" = set ]
 then	separator="${extra_text}"
@@ -266,6 +312,7 @@ then	softstatus=false
 	;;
 	esac
 fi
+
 if [ -z "${hardstatus}" ]
 then	hardstatus=false
 	case "${TERM}" in
@@ -273,11 +320,6 @@ then	hardstatus=false
 		hardstatus=:
 	;;
 	esac
-fi
-
-if ${errstatus}
-then	SetStatus
-else	unset hstatus_status sstatus_status ps_status
 fi
 
 if [ ${maxlen} -gt 0 ]
@@ -291,11 +333,13 @@ if ${hardstatus} || ${softstatus}
 then	status_both="${ps_user}${text_at}${ps_host}${extra_text}${statusdir}"
 	if ${softstatus}
 	then	ps="${ps}${startsstatus}${status_both}"
-		ps="${ps}${sstatus_status}${endsstatus}"
+		${skipstatus} || ps="${ps}${sstatus_status}"
+		ps="${ps}${endsstatus}"
 	fi
 	if ${hardstatus}
 	then	ps="${ps}${starthstatus}${status_both}"
-		ps="${ps}${hstatus_status}${endhstatus}"
+		${skipstatus} || ps="${ps}${hstatus_status}"
+		ps="${ps}${endhstatus}"
 	fi
 fi
 
@@ -305,7 +349,8 @@ else	ps="${col_user}"
 fi
 
 ps="${ps}${ps_user}${col_at}${text_at}${col_host}${ps_host}"
-ps="${ps}${col_separator}${separator}${col_dir}${ps_dir}${ps_status}"
+ps="${ps}${col_separator}${separator}${col_dir}${ps_dir}"
+${skipstatus} || ps="${ps}${ps_status}"
 if ${vcs}
 then	ps="${ps}\${VCSBRANCH:+\"${col_vcsbranchsep}${text_vcsbranchsep}"
 	ps="${ps}${col_vcsbranch}\${VCSBRANCH}${col_vcsend}\"}"
