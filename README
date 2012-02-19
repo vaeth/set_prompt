@@ -1,14 +1,29 @@
 (C) Martin Väth <martin@mvath.de>
 This project is under the BSD license.
 
-Use an intelligent prompt for zsh or bash with status line support.
+An intelligent prompt for zsh or bash with status line (window title) support.
 
-This is a collection of scripts which allow you to display a prompt
-for zsh or bash and also setting a corresponding hardstatus line
+This is a collection of scripts which allow you to use an intelligent prompt
+for zsh or bash which also sets a corresponding hardstatus line
 (if your terminal supports it).
 
+For a demo printing a simple default prompt, execute this in your shell:
+
+printf '\e[0;33mme\e[36m@\e[32mhost\e[36m(my text)\e[1;32m~/very/l' \
+&& printf '\e[0;34m...\e[1;32mong/pathname\e[1;33m%%\e[0m\n'
+
+Under X, tmux, or screen, the text will appear (slightly changed) in addition
+as your window title (status line).
+The above line only displays the simplest prompt: You can see more information
+in the prompt if e.g. you are logged in by ssh, if you are in a directory with
+a git project, or if your last command exited unsuccessfully.
+A configuration file is supported in which you can easily customize the prompt
+(e.g. change colors or conditions), using standard shell code.
+
+
 To install these scripts, copy them somewhere into your $PATH;
-set_prompt.config can alternatively also be copied into /etc.
+the default configuration set_prompt.config can alternatively
+also be copied into /usr/local/etc or /etc.
 For Gentoo, there is an ebuild in the mv overlay (available by layman).
 
 The main program is

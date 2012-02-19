@@ -1,8 +1,8 @@
 #! /usr/bin/env sh
 # (C) Martin V\"ath <martin@mvath.de>
 
-name="${0##*/}"
-config_file="${0##*/}.config"
+name='set_prompt'
+config_file="${name}.config"
 
 Echo() {
 	printf '%s\n' "${*}"
@@ -269,7 +269,7 @@ HandleVars() {
 }
 
 if [ -n "${config_file}" ]
-then	PATH="${PATH}${PATH:+:}/etc:" . "${config_file}"
+then	PATH="${PATH}${PATH:+:}/usr/local/etc:/etc:" . "${config_file}"
 fi
 
 case "${maxlen:-x}" in
