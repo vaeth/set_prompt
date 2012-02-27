@@ -21,7 +21,7 @@ set_prompt() {
 # For broken bash versions, also add the argument -l0
 
 if [ -n "${BASH}" ]
-then	eval "$(funcdef="$(declare -f set_prompt)"
+then	eval "$(funcdef=$(declare -f set_prompt)
 	if [ "${BASH_VERSINFO[0]}" -eq 3 ]  && [ "${BASH_VERSINFO[1]}" -eq 1 ] \
 	&& [ "${BASH_VERSINFO[2]}" -le 17 ] && [ "${BASH_VERSINFO[3]}" -le 1 ]
 	then	args='-bl0'

@@ -1,6 +1,9 @@
 #! /usr/bin/env sh
 # (C) Martin V\"ath <martin@mvath.de>
 
+unset LC_ALL
+LC_COLLATE=C
+
 name='set_prompt'
 config_file="${name}.config"
 
@@ -170,8 +173,8 @@ ps_prompt'
 
 Usage() {
 	Echo \
-"Usage: temp=\"\$(${name} [options] [args for ${config_file}]; echo X)\" "'\
-    && PS1="${temp%X}" ; [ -z "${ZSH_NAME}" ] || setopt promptsubst'"
+"Usage: temp=\$(${name} [options] [args for ${config_file}]; echo X) "'\
+    && PS1=${temp%X} ; [ -z "${ZSH_NAME}" ] || setopt promptsubst'"
 options:
 -b Output for bash instead of zsh (implies -VE)
 -r Use readable (non-binary) output. For zsh, this prompt usually requires:
@@ -207,10 +210,10 @@ leftkeep=8
 unset extra_text
 OPTIND=1
 while getopts 'rEe:sSxXCbvVl:L:c:hH?' arg
-do	case "${arg}" in
+do	case ${arg} in
 	r)	readable=:;;
 	E)	skipstatus=:;;
-	e)	extra_text="${OPTARG}";;
+	e)	extra_text=${OPTARG};;
 	s)	softstatus=:;;
 	S)	softstatus=false;;
 	x)	hardstatus=:;;
@@ -220,9 +223,9 @@ do	case "${arg}" in
 		vcs=false;;
 	v)	vcs=:;;
 	V)	vcs=false;;
-	l)	maxlen="${OPTARG}";;
-	L)	leftkeep="${OPTARG}";;
-	c)	config_file="${OPTARG}";;
+	l)	maxlen=${OPTARG};;
+	L)	leftkeep=${OPTARG};;
+	c)	config_file=${OPTARG};;
 	*)	Usage;;
 	esac
 done
@@ -237,7 +240,7 @@ StripVars() {
 	else	prevar='bash_'
 	fi
 	for var in ${strip_vars}
-	do	eval "${var}=\"\${${prevar}${var}}\""
+	do	eval "${var}=\${${prevar}${var}}"
 	done
 }
 
@@ -245,7 +248,7 @@ ColorVars() {
 	for var in ${color_vars}
 	do	eval "if ${color} && [ -n \"\${color_${var}}\" ]
 		then	eval \"color_${var}=\\\"\${color_${var}}\\\"\"
-			col_${var}=\"\${ps_open}\${color_${var}}\${ps_close}\"
+			col_${var}=\${ps_open}\${color_${var}}\${ps_close}
 		else	col_${var}=''
 		fi"
 	done
@@ -272,11 +275,13 @@ if [ -n "${config_file}" ]
 then	PATH="${PATH}${PATH:+:}/usr/local/etc:/etc:" . "${config_file}"
 fi
 
-case "${maxlen:-x}" in
-*[!0-9]*)
-	maxlen=0
-;;
-esac
+NumberOrNull() {
+	eval "case \${${1}:-x} in
+	*[!0-9]*)	${1}=0;;
+	esac"
+}
+
+NumberOrNull maxlen
 
 if ${zsh}
 then	zsh_readable=${readable}
@@ -285,8 +290,8 @@ else	zsh_readable=false
 fi
 
 if ! ${readable}
-then	bash_escape="${zsh_escape}"
-	bash_charseven="${zsh_charseven}"
+then	bash_escape=${zsh_escape}
+	bash_charseven=${zsh_charseven}
 elif ${zsh}
 then	zsh_escape='${escape}'
 	zsh_charseven='${charseven}'
@@ -296,17 +301,17 @@ fi
 HandleVars
 
 if [ "${extra_text:+set}" = set ]
-then	separator="${extra_text}"
+then	separator=${extra_text}
 fi
 
 if [ -z "${SSH_TTY}${SSH_CONNECTION}" ]
-then	col_host="${col_host_normal}"
-else	col_host="${col_host_ssh}"
+then	col_host=${col_host_normal}
+else	col_host=${col_host_ssh}
 fi
 
 if [ -z "${softstatus}" ]
 then	softstatus=false
-	case "${TERM}" in
+	case ${TERM} in
 	screen*)
 		softstatus=:
 	;;
@@ -315,7 +320,7 @@ fi
 
 if [ -z "${hardstatus}" ]
 then	hardstatus=false
-	case "${TERM}" in
+	case ${TERM} in
 	xterm*|screen*|rxvt*|aterm*|konsole*|gnome*|Eterm*|kterm*|interix*)
 		hardstatus=:
 	;;
@@ -325,53 +330,49 @@ fi
 if [ ${maxlen} -gt 0 ]
 then	statusdir='${d}'
 	ps_dir='${c}'
-else	statusdir="${ps_dir}"
+else	statusdir=${ps_dir}
 fi
 
 ps=''
 if ${hardstatus} || ${softstatus}
-then	status_both="${ps_user}${text_at}${ps_host}${extra_text}${statusdir}"
+then	status_both=${ps_user}${text_at}${ps_host}${extra_text}${statusdir}
 	if ${softstatus}
-	then	ps="${ps}${startsstatus}${status_both}"
-		${skipstatus} || ps="${ps}${sstatus_status}"
-		ps="${ps}${endsstatus}"
+	then	ps=${ps}${startsstatus}${status_both}
+		${skipstatus} || ps=${ps}${sstatus_status}
+		ps=${ps}${endsstatus}
 	fi
 	if ${hardstatus}
-	then	ps="${ps}${starthstatus}${status_both}"
-		${skipstatus} || ps="${ps}${hstatus_status}"
-		ps="${ps}${endhstatus}"
+	then	ps=${ps}${starthstatus}${status_both}
+		${skipstatus} || ps=${ps}${hstatus_status}
+		ps=${ps}${endhstatus}
 	fi
 fi
 
 if [ -n "${ps}" ]
-then	ps="${ps_open}${ps}${color_user}${ps_close}"
-else	ps="${col_user}"
+then	ps=${ps_open}${ps}${color_user}${ps_close}
+else	ps=${col_user}
 fi
 
-ps="${ps}${ps_user}${col_at}${text_at}${col_host}${ps_host}"
-ps="${ps}${col_separator}${separator}${col_dir}${ps_dir}"
-${skipstatus} || ps="${ps}${ps_status}"
+ps=${ps}${ps_user}${col_at}${text_at}${col_host}${ps_host}
+ps=${ps}${col_separator}${separator}${col_dir}${ps_dir}
+${skipstatus} || ps=${ps}${ps_status}
 if ${vcs}
 then	ps="${ps}\${VCSBRANCH:+\"${col_vcsbranchsep}${text_vcsbranchsep}"
 	ps="${ps}${col_vcsbranch}\${VCSBRANCH}${col_vcsend}\"}"
 	ps="${ps}\${VCSSTATUS:+\"${col_vcsstatussep}${text_vcsstatussep}"
 	ps="${ps}${col_vcsstatus}\${VCSSTATUS}${col_vcsend}\"}"
 fi
-ps="${ps}${col_prompt}${ps_prompt}${col_trail}${text_trail}${col_endall}"
+ps=${ps}${col_prompt}${ps_prompt}${col_trail}${text_trail}${col_endall}
 if [ ${maxlen} -gt 0 ]
 then	[ ${maxlen} -gt ${#text_dots} ] || maxlen=${#text_dots}
-	case "${leftkeep:-x}" in
-	*[!0-9]*)
-		leftkeep=0
-	;;
-	esac
 	leftmax=$(( ${maxlen} - ${#text_dots} ))
+	NumberOrNull leftkeep
 	[ ${leftkeep} -le ${leftmax} ] || leftkeep=${leftmax}
 	rightkeep=$(( ${maxlen} - ${leftkeep} - ${#text_dots} ))
 	d2=''
 	d3=''
 	if ${zsh}
-	then	d1='d="$(print -P '\''%~'\'')"'
+	then	d1='d=$(print -P '\''%~'\'')'
 		if [ ${leftkeep} -eq 1 ]
 		then	d2='${d[1]}'
 		elif [ ${leftkeep} -gt 1 ]
@@ -384,14 +385,14 @@ then	[ ${maxlen} -gt ${#text_dots} ] || maxlen=${#text_dots}
 			else	d3='${d[${#d}-'"${rightkeep}"',${#d}]}'
 			fi
 		fi
-	else	d1='d="${PWD#~}"
+	else	d1='d=${PWD#~}
 [ "${d}" = "${PWD}" ] || d="~${d}"'
 		[ ${leftkeep} -le 0 ] || d2='${d:0:'"${leftkeep}"'}'
 		[ ${rightkeep} -le 0 ] || d3='${d: -'"${rightkeep}"'}'
 	fi
 	ps="\$(${d1}
 if [ \${#d} -le ${maxlen} ]
-then	c=\"\${d}\"
+then	c=\${d}
 else	c=\"${d2}${col_dots}${text_dots}${col_dir}${d3}\"
 	d=\"${d2}${text_dots}${d3}\"
 fi
