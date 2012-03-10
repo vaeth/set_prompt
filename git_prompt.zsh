@@ -39,11 +39,12 @@ GitUpdate() {
 	done
 }
 GitUpdateChpwd() {
-	GitUpdate && git_update_done=:
+	GitUpdate
+	git_update_done=:
 }
 GitUpdatePrecmd() {
 	if [[ -n "$VCSBRANCH$VCSSTATUS" ]]
-	then	[[ -n ${git_update_done-n} ]] \
+	then	[[ -n ${git_update_done-} ]] \
 			&& unset git_update_done || GitUpdate
 	fi
 }
@@ -54,5 +55,5 @@ precmd_functions+=GitUpdatePrecmd
 VCSBRANCH=''
 VCSSTATUS=''
 GIT_UPDATE=:
-unset git_update_done
+GitUpdateChpwd
 fi
