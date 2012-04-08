@@ -95,7 +95,7 @@ color_dir="${lightgreen}"
 color_dots="${blue}"
 color_prompt="${yellow}"
 color_trail="${default}"
-color_endall=''
+color_endall=
 
 # All the above color_* variables must be listed here (without prefix color_)
 # If you add color variables in the configuration, you must also add them
@@ -202,8 +202,8 @@ color=:
 zsh=:
 skipstatus=false
 separator=':'
-softstatus=''
-hardstatus=''
+softstatus=
+hardstatus=
 vcs=':'
 maxlen=24
 leftkeep=8
@@ -240,7 +240,7 @@ StripVars() {
 	else	prevar='bash_'
 	fi
 	for var in ${strip_vars}
-	do	eval "${var}=\${${prevar}${var}}"
+	do	eval ${var}=\${${prevar}${var}}
 	done
 }
 
@@ -249,14 +249,14 @@ ColorVars() {
 	do	eval "if ${color} && [ -n \"\${color_${var}}\" ]
 		then	eval \"color_${var}=\\\"\${color_${var}}\\\"\"
 			col_${var}=\${ps_open}\${color_${var}}\${ps_close}
-		else	col_${var}=''
+		else	col_${var}=
 		fi"
 	done
 }
 
 IndirectVars() {
 	for var in ${indirect_vars}
-	do	eval "eval \"${var}=\\\"\${${var}}\\\"\""
+	do	eval eval ${var}=\\\"\${${var}}\\\"
 	done
 }
 
@@ -333,7 +333,7 @@ then	statusdir='${d}'
 else	statusdir=${ps_dir}
 fi
 
-ps=''
+ps=
 if ${hardstatus} || ${softstatus}
 then	status_both=${ps_user}${text_at}${ps_host}${extra_text}${statusdir}
 	if ${softstatus}
@@ -369,8 +369,8 @@ then	[ ${maxlen} -gt ${#text_dots} ] || maxlen=${#text_dots}
 	NumberOrNull leftkeep
 	[ ${leftkeep} -le ${leftmax} ] || leftkeep=${leftmax}
 	rightkeep=$(( ${maxlen} - ${leftkeep} - ${#text_dots} ))
-	d2=''
-	d3=''
+	d2=
+	d3=
 	if ${zsh}
 	then	d1='d=$(print -P '\''%~'\'')'
 		if [ ${leftkeep} -eq 1 ]
