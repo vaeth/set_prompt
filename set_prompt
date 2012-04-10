@@ -26,7 +26,7 @@ bash_backslash='\\'
 
 Color() {
 	if ${zsh_readable}
-	then	Echon "\$${1}"
+	then	Echon "${1}"
 	else	Echon "${escape}${2}"
 	fi
 }
@@ -34,40 +34,40 @@ Color() {
 # Colors and attributes which can be used in configuration.
 # You must first specify colors and then other attributes.
 
-black='`Color "{fg_no_bold[black]}" "[0;30m"`'
-blue='`Color "{fg_no_bold[blue]}" "[0;34m"`'
-green='`Color "{fg_no_bold[green]}" "[0;32m"`'
-cyan='`Color "{fg_no_bold[cyan]}" "[0;36m"`'
-red='`Color "{fg_no_bold[red]}" "[0;31m"`'
-purple='`Color "{fg_no_bold[magenta]}" "[0;35m"`'
-brown='`Color "{fg_no_bold[yellow]}" "[0;33m"`'
-lightgray='`Color "{fg_no_bold[white]}" "[0;37m"`'
-darkgray='`Color "{fg_bold[black]}" "[1;30m"`'
-lightblue='`Color "{fg_bold[blue]}" "[1;34m"`'
-lightgreen='`Color "{fg_bold[green]}" "[1;32m"`'
-lightcyan='`Color "{fg_bold[cyan]}" "[1;36m"`'
-lightred='`Color "{fg_bold[red]}" "[1;31m"`'
-lightpurple='`Color "{fg_bold[magenta]}" "[1;35m"`'
-yellow='`Color "{fg_bold[yellow]}" "[1;33m"`'
-white='`Color "{fg_bold[white]}" "[1;37m"`'
+black='`Color "%b%F{black}" "[0;30m"`'
+blue='`Color "%b%F{blue}" "[0;34m"`'
+green='`Color "%b%F{green}" "[0;32m"`'
+cyan='`Color "%b%F{cyan}" "[0;36m"`'
+red='`Color "%b%F{red}" "[0;31m"`'
+purple='`Color "%b%F{magenta}" "[0;35m"`'
+brown='`Color "%b%F{yellow}" "[0;33m"`'
+lightgray='`Color "%b%F{white}" "[0;37m"`'
+darkgray='`Color "%B%F{black}" "[1;30m"`'
+lightblue='`Color "%B%F{blue}" "[1;34m"`'
+lightgreen='`Color "%B%F{green}" "[1;32m"`'
+lightcyan='`Color "%B%F{cyan}" "[1;36m"`'
+lightred='`Color "%B%F{red}" "[1;31m"`'
+lightpurple='`Color "%B%F{magenta}" "[1;35m"`'
+yellow='`Color "%B%F{yellow}" "[1;33m"`'
+white='`Color "%B%F{white}" "[1;37m"`'
 
-backblack='`Color "{bg[black]}" "[40m"`'
-backblue='`Color "{bg[blue]}" "[44m"`'
-backgreen='`Color "{bg[green]}" "[42m"`'
-backcyan='`Color "{bg[cyan]}" "[46m"`'
-backred='`Color "{bg[red]}" "[41m"`'
-backpurple='`Color "{bg[magenta]}" "[45m"`'
-backbrown='`Color "{bg[yellow]}" "[43m"`'
-backlightgray='`Color "{bg[white]}" "[47m"`'
+backblack='`Color "%K{black}" "[40m"`'
+backblue='`Color "%K{blue}" "[44m"`'
+backgreen='`Color "%K{green}" "[42m"`'
+backcyan='`Color "%K{cyan}" "[46m"`'
+backred='`Color "%K{red}" "[41m"`'
+backpurple='`Color "%K{magenta}" "[45m"`'
+backbrown='`Color "%K{yellow}" "[43m"`'
+backlightgray='`Color "%K{white}" "[47m"`'
 
-default='`Color "{reset_color}" "[0m"`'
-bold='`Color "{bold_color}" "[1m"`'
-faint='`Color "{escape}\${color[faint]}m" "[2m"`'
-standout='`Color "{escape}\${color[standout]}m" "[3m"`'
-underline='`Color "{escape}\${color[underline]}m" "[4m"`'
-blink='`Color "{escape}\${color[blink]}m" "[5m"`'
-reverse='`Color "{escape}\${color[reverse]}m" "[7m"`'
-conceal='`Color "{escape}\${color[conceal]}m" "[8m"`'
+default='`Color "\${reset_color}" "[0m"`'
+bold='`Color "%B" "[1m"`'
+faint='`Color "\${escape}\${color[faint]}m" "[2m"`'
+standout='`Color "%S" "[3m"`'
+underline='`Color "%U" "[4m"`'
+blink='`Color "\${escape}\${color[blink]}m" "[5m"`'
+reverse='`Color "\${escape}\${color[reverse]}m" "[7m"`'
+conceal='`Color "\${escape}\${color[conceal]}m" "[8m"`'
 
 # The default configuration:
 
@@ -313,8 +313,7 @@ if [ -z "${softstatus}" ]
 then	softstatus=false
 	case ${TERM} in
 	screen*)
-		softstatus=:
-	;;
+		softstatus=:;;
 	esac
 fi
 
@@ -322,8 +321,7 @@ if [ -z "${hardstatus}" ]
 then	hardstatus=false
 	case ${TERM} in
 	xterm*|screen*|rxvt*|aterm*|konsole*|gnome*|Eterm*|kterm*|interix*)
-		hardstatus=:
-	;;
+		hardstatus=:;;
 	esac
 fi
 
