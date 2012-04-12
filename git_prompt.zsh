@@ -19,6 +19,7 @@ GitUpdate() {
 	git status --porcelain -sb 2>/dev/null)"}
 	do	case $i[2] in
 		('#')	VCSBRANCH=${i[4,$#i]};;
+		(' ')	a+=$i[1];;
 		(*)	a+=$i[2];;
 		esac
 	done
