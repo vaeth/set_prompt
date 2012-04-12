@@ -24,50 +24,45 @@ bash_charseven='\007'
 zsh_backslash='\'
 bash_backslash='\\'
 
-Color() {
-	if ${zsh_readable}
-	then	Echon "${1}"
-	else	Echon "${escape}${2}"
-	fi
-}
-
-# Colors and attributes which can be used in configuration.
+# Now we specify colors and attributes which can be used in configuration.
 # You must first specify colors and then other attributes.
+# The values are the ANSI-Escape sequences (without \e), optionally followed
+# by a space and a more readable zsh escape sequence.
 
-black='`Color "%b%F{black}" "[0;30m"`'
-blue='`Color "%b%F{blue}" "[0;34m"`'
-green='`Color "%b%F{green}" "[0;32m"`'
-cyan='`Color "%b%F{cyan}" "[0;36m"`'
-red='`Color "%b%F{red}" "[0;31m"`'
-purple='`Color "%b%F{magenta}" "[0;35m"`'
-brown='`Color "%b%F{yellow}" "[0;33m"`'
-lightgray='`Color "%b%F{white}" "[0;37m"`'
-darkgray='`Color "%B%F{black}" "[1;30m"`'
-lightblue='`Color "%B%F{blue}" "[1;34m"`'
-lightgreen='`Color "%B%F{green}" "[1;32m"`'
-lightcyan='`Color "%B%F{cyan}" "[1;36m"`'
-lightred='`Color "%B%F{red}" "[1;31m"`'
-lightpurple='`Color "%B%F{magenta}" "[1;35m"`'
-yellow='`Color "%B%F{yellow}" "[1;33m"`'
-white='`Color "%B%F{white}" "[1;37m"`'
+black='[0;30m %b%F{black}'
+blue='[0;34m %b%F{blue}'
+green='[0;32m %b%F{green}'
+cyan='[0;36m %b%F{cyan}'
+red='[0;31m %b%F{red}'
+purple='[0;35m %b%F{magenta}'
+brown='[0;33m %b%F{yellow}'
+lightgray='[0;37m %b%F{white}'
+darkgray='[1;30m %B%F{black}'
+lightblue='[1;34m %B%F{blue}'
+lightgreen='[1;32m %B%F{green}'
+lightcyan='[1;36m %B%F{cyan}'
+lightred='[1;31m %B%F{red}'
+lightpurple='[1;35m %B%F{magenta}'
+yellow='[1;33m %B%F{yellow}'
+white='[1;37m %B%F{white}'
 
-backblack='`Color "%K{black}" "[40m"`'
-backblue='`Color "%K{blue}" "[44m"`'
-backgreen='`Color "%K{green}" "[42m"`'
-backcyan='`Color "%K{cyan}" "[46m"`'
-backred='`Color "%K{red}" "[41m"`'
-backpurple='`Color "%K{magenta}" "[45m"`'
-backbrown='`Color "%K{yellow}" "[43m"`'
-backlightgray='`Color "%K{white}" "[47m"`'
+backblack='[40m %K{black}'
+backblue='[44m %K{blue}'
+backgreen='[42m %K{green}'
+backcyan='[46m %K{cyan}'
+backred='[41m %K{red}'
+backpurple='[45m %K{magenta}'
+backbrown='[43m %K{yellow}'
+backlightgray='[47m %K{white}'
 
-default='`Color "\${reset_color}" "[0m"`'
-bold='`Color "%B" "[1m"`'
-faint='`Color "\${escape}\${color[faint]}m" "[2m"`'
-standout='`Color "%S" "[3m"`'
-underline='`Color "%U" "[4m"`'
-blink='`Color "\${escape}\${color[blink]}m" "[5m"`'
-reverse='`Color "\${escape}\${color[reverse]}m" "[7m"`'
-conceal='`Color "\${escape}\${color[conceal]}m" "[8m"`'
+default='[0m'
+bold='[1m %B'
+faint='[2m'
+standout='[3m %S'
+underline='[4m %U'
+blink='[5m'
+reverse='[7m'
+conceal='[8m'
 
 # The default configuration:
 
@@ -79,22 +74,22 @@ text_trail=' '
 
 # Colors for the configuration:
 
-color_user="${brown}"
-color_at="${cyan}"
-color_host_normal="${green}"
-color_host_ssh="${lightred}"
-color_separator="${cyan}"
-color_errstatus="${lightred}"
-color_errbrace="${brown}"
-color_vcsbranchsep="${color_at}"
-color_vcsbranch="${lightpurple}"
-color_vcsstatussep="${color_at}"
-color_vcsstatus="${red}"
-color_vcsend="${default}"
-color_dir="${lightgreen}"
-color_dots="${blue}"
-color_prompt="${yellow}"
-color_trail="${default}"
+color_user=${brown}
+color_at=${cyan}
+color_host_normal=${green}
+color_host_ssh=${lightred}
+color_separator=${cyan}
+color_errstatus=${lightred}
+color_errbrace=${brown}
+color_vcsbranchsep=${color_at}
+color_vcsbranch=${lightpurple}
+color_vcsstatussep=${color_at}
+color_vcsstatus=${red}
+color_vcsend=${default}
+color_dir=${lightgreen}
+color_dots=${blue}
+color_prompt=${yellow}
+color_trail=${default}
 color_endall=
 
 # All the above color_* variables must be listed here (without prefix color_)
@@ -177,9 +172,7 @@ Usage() {
     && PS1=${temp%X} ; [ -z "${ZSH_NAME}" ] || setopt promptsubst'"
 options:
 -b Output for bash instead of zsh (implies -VE)
--r Use readable (non-binary) output. For zsh, this prompt usually requires:
-   autoload -Uz colors && colors
-   escape=\$'\\033'; charseven=\$'\\007'; backslash='\\'
+-r Use readable (non-binary) output. Use printf '%s' or echo -E for output.
 -C No colorized prompt
 -s Use screen statusline (even if TERM is not in the supported list)
 -x Use hardstatus line (even if TERM is not in the supported list)
@@ -247,7 +240,12 @@ StripVars() {
 ColorVars() {
 	for var in ${color_vars}
 	do	eval "if ${color} && [ -n \"\${color_${var}}\" ]
-		then	eval \"color_${var}=\\\"\${color_${var}}\\\"\"
+		then	${zsh_readable} && case \${color_${var}} in
+			*' '*)
+				color_${var}=\${color_${var}#* };;
+			*)
+				color_${var}=\${escape}\${color_${var}};;
+			esac || color_${var}=\${escape}\${color_${var}%% *}
 			col_${var}=\${ps_open}\${color_${var}}\${ps_close}
 		else	col_${var}=
 		fi"
@@ -293,9 +291,9 @@ if ! ${readable}
 then	bash_escape=${zsh_escape}
 	bash_charseven=${zsh_charseven}
 elif ${zsh}
-then	zsh_escape='${escape}'
-	zsh_charseven='${charseven}'
-	zsh_backslash='${backslash}'
+then	zsh_escape='`printf '\''\e'\''`'
+	zsh_charseven='`printf '\''\a'\''`'
+	zsh_backslash=${bash_backslash}
 fi
 
 HandleVars
