@@ -11,7 +11,7 @@
 # set_prompt.config to denote that we want special colors for a changed host
 
 set_prompt() {
-	[ -z "${HOSTTEXT}" ] || set -- -e "(${HOSTTEXT})" "${@}"
+	[ -z "${HOSTTEXT:++}" ] || set -- -e "(${HOSTTEXT})" "${@}"
 	[ "${HOSTTEXTSAVE}" = "${HOSTTEXT}" ] || set -- "${@}" 1
 	local t
 	t="$(PATH="${PATH}:." . set_prompt "${@}" && echo /)" && PS1="${t%/}"
@@ -20,7 +20,7 @@ set_prompt() {
 # For bash, we patch the above function to add the arguments -b.
 # For broken bash versions, also add the argument -l0
 
-if [ -n "${BASH}" ]
+if [ -n "${BASH:++}" ]
 then	eval "$(funcdef=$(declare -f set_prompt)
 	if [ "${BASH_VERSINFO[0]}" -eq 3 ]  && [ "${BASH_VERSINFO[1]}" -eq 1 ] \
 	&& [ "${BASH_VERSINFO[2]}" -le 17 ] && [ "${BASH_VERSINFO[3]}" -le 1 ]

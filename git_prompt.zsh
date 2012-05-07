@@ -15,7 +15,7 @@ GitUpdate() {
 	a=()
 	local i
 	for i in ${(@f)"$(u=${GIT_UPDATE_USER-nobody}
-	[[ -z $u ]] || USERNAME=$u >/dev/null 2>&1
+	[[ -z ${u:++} ]] || USERNAME=$u >/dev/null 2>&1
 	git status --porcelain -sb 2>/dev/null)"}
 	do	case $i[2] in
 		('#')	VCSBRANCH=${i[4,$#i]};;
@@ -32,7 +32,7 @@ GitUpdateChpwd() {
 }
 
 GitUpdatePrecmd() {
-	if [[ -n "$VCSBRANCH$VCSSTATUS" ]]
+	if [[ -n ${VCSBRANCH:++}${VCSSTATUS:++} ]]
 	then	[[ -n ${git_update_done-} ]] \
 			&& unset git_update_done || GitUpdate
 	fi

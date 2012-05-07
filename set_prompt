@@ -239,7 +239,7 @@ StripVars() {
 
 ColorVars() {
 	for var in ${color_vars}
-	do	eval "if ${color} && [ -n \"\${color_${var}}\" ]
+	do	eval "if ${color} && [ -n \"\${color_${var}:++}\" ]
 		then	${zsh_readable} && case \${color_${var}} in
 			*' '*)
 				color_${var}=\${color_${var}#* };;
@@ -263,13 +263,13 @@ IndirectVars() {
 # indeed expanded, so we must switch on emulation mode.
 
 HandleVars() {
-	[ -n "${ZSH_NAME}" ] && emulate -L sh
+	[ -n "${ZSH_NAME:++}" ] && emulate -L sh
 	StripVars
 	ColorVars
 	IndirectVars
 }
 
-if [ -n "${config_file}" ]
+if [ -n "${config_file:++}" ]
 then	PATH="${PATH}${PATH:+:}/usr/local/etc:/etc:" . "${config_file}"
 fi
 
@@ -302,12 +302,12 @@ if [ "${extra_text:+set}" = set ]
 then	separator=${extra_text}
 fi
 
-if [ -z "${SSH_TTY}${SSH_CONNECTION}" ]
+if [ -z "${SSH_TTY:++}${SSH_CONNECTION:++}" ]
 then	col_host=${col_host_normal}
 else	col_host=${col_host_ssh}
 fi
 
-if [ -z "${softstatus}" ]
+if [ -z "${softstatus:++}" ]
 then	softstatus=false
 	case ${TERM} in
 	screen*)
@@ -315,7 +315,7 @@ then	softstatus=false
 	esac
 fi
 
-if [ -z "${hardstatus}" ]
+if [ -z "${hardstatus:++}" ]
 then	hardstatus=false
 	case ${TERM} in
 	xterm*|screen*|rxvt*|aterm*|konsole*|gnome*|Eterm*|kterm*|interix*)
@@ -344,7 +344,7 @@ then	status_both=${ps_user}${text_at}${ps_host}${extra_text}${statusdir}
 	fi
 fi
 
-if [ -n "${ps}" ]
+if [ -n "${ps:++}" ]
 then	ps=${ps_open}${ps}${color_user}${ps_close}
 else	ps=${col_user}
 fi
