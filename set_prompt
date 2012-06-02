@@ -144,7 +144,41 @@ zsh_ps_close='%}'
 zsh_ps_dir='%~'
 zsh_ps_user='%n'
 zsh_ps_host='%m'
-zsh_ps_prompt='%#'
+
+# Helper functions to set zsh_ps_prompt:
+
+# ZshUTF VAR symbol
+# defines VAR as a (possibly) UTF8 symbol in the zsh prompt (1 character long).
+ZshUTF() {
+	if [ ${#2} -ne 1 ]
+	then	eval ${1}='"${zsh_ps_open}%G${2}${zsh_ps_close}"'
+	elif	[ "${2}" = '%' ]
+	then	eval ${1}='"%%"'
+	else	eval ${1}=\${2}
+	fi
+}
+
+# ZshPs [privileged-symbol] [normal-symbol]
+# Set prompt symbol for zsh for privileged-symbol or normal-symbol
+# (depending on whether zsh is in privileged mode or not).
+# It is explicitly admissible to use UTF8 symbols.
+# For omitted arguments the zsh defaults "&" and "%" are used, respectively.
+ZshPs() {
+	zsh_ps_priv=${1:-#}
+	zsh_ps_prompt=${2:-%}
+	if [ "${zsh_ps_priv}" = '#' ] && [ "${zsh_ps_prompt}" = '%' ]
+	then	zsh_ps_prompt='%#'
+		return
+	fi
+	ZshUTF zsh_ps_priv "${zsh_ps_priv}"
+	ZshUTF zsh_ps_prompt "${zsh_ps_prompt}"
+	zsh_ps_prompt='%(!.'"${zsh_ps_priv}.${zsh_ps_prompt}"')'
+}
+
+# We default to "&" for a privileged zsh to disinguish it from bash
+# (feel free to call ZshPs with different arg(s) in set_prompt.config;
+# you can use e.g. unicode symbols if your locale/terminal/font supports it)
+ZshPs '&'
 
 bash_ps_open='\['
 bash_ps_close='\]'
