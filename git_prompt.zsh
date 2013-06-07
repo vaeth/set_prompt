@@ -16,6 +16,7 @@ GitUpdate() {
 	local i
 	for i in ${(@f)"$(u=${GIT_UPDATE_USER-nobody}
 	[[ -z ${u:++} ]] || USERNAME=$u >/dev/null 2>&1
+	unset HOME
 	git status --porcelain -sb 2>/dev/null)"}
 	do	case $i[2] in
 		('#')	VCSBRANCH=${i[4,$#i]};;
