@@ -1,4 +1,4 @@
-#! /usr/bin/env sh
+#!/usr/bin/env sh
 # (C) Martin V\"ath <martin@mvath.de>
 #
 # The first line is only for editors.

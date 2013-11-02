@@ -1,4 +1,4 @@
-#! /bin/zsh
+#!/bin/zsh
 # The above line is only meant for editors
 # (C) Martin V\"ath <martin@mvath.de>
 
