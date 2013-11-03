@@ -420,7 +420,8 @@ then	[ ${maxlen} -gt ${#text_dots} ] || maxlen=${#text_dots}
 		[ ${leftkeep} -le 0 ] || d2='${d:0:'"${leftkeep}"'}'
 		[ ${rightkeep} -le 0 ] || d3='${d: -'"${rightkeep}"'}'
 	fi
-	ps="\$(${d1}
+	ps="\$(unset c d
+${d1}
 if [ \${#d} -le ${maxlen} ]
 then	c=\${d}
 else	c=\"${d2}${col_dots}${text_dots}${col_dir}${d3}\"
