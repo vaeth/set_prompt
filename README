@@ -74,9 +74,18 @@ Moreover, unfortunately, "git status" (with current git versions)
 usually writes into the top-level .git directory which allows symlink attacks.
 git_prompt.zsh has some mechanisms to avoid this problem:
 
-(1) "git status" is called as $GIT_UPDATE_USER (default: nobody)
-(if your zsh is run with privileges to become that user).
-Set GIT_UPDATE_USER='' to suppress this mechanism.
+(1) Most important: git_update is used instead of git if it is in the path.
+git_update will attempt to change to the user GIT_UPDATE_USER (default: nobody)
+and unset the HOME directory; it will fail if this does not succeeed.
+To suppress this security mechanism,
+	export GIT_UPDATE_USER=""
+
+git_update is a separate command so that you can adapt it to your needs and
+you can also use it other programs.
+
+For example, if you are an emacs user, you might want to put
+	(setq vc-git-program "git_update")
+into your ~/.emacs to get the same security mechanism also for emacs.
 
 (2) You can optionally define a function/command "GitUpdateUser".
 If you have done so, this function/command is executed in the running zsh
@@ -88,7 +97,8 @@ This function is called before (1); hence you can use this function also
 e.g. to set GIT_UPDATE_USER to the owner of the current directory
 (or of the current top-level .git directory).
 
-(3) Normally, git_prompt.zsh sets GIT_UPDATE when being sourced.
+(3) Normally, git_prompt.zsh sets GIT_UPDATE and GIT_UPDATE_USER=nobody
+when being sourced and when these variables are not yet set.
 If you want to disable the functionality of the script, just unset GIT_UPDATE
 (or set it to "false" or to an empty value). You can set GIT_UPDATE later on
 again to reenable the functionality. Note that (1) and (2) are unnecessary

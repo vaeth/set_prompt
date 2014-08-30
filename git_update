@@ -1,0 +1,14 @@
+#!/bin/zsh
+Die() {
+	printf '%s\n' "${0##*/}: ${@}" >&2
+	exit 1
+}
+c=$USERNAME
+u=${GIT_UPDATE_USER-nobody}
+if [[ -n ${u:++} ]]
+then	USERNAME=$u >/dev/null 2>&1
+	[[ $USERNAME == $u ]] || Die "failed to become GIT_UPDATE_USER ($u)
+export GIT_UPDATE_USER='' to keep permissions"
+	unset HOME
+fi
+exec git "${@}"

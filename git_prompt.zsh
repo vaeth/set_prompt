@@ -14,10 +14,8 @@ GitUpdate() {
 	local -aU a
 	a=()
 	local i
-	for i in ${(@f)"$(u=${GIT_UPDATE_USER-nobody}
-	[[ -z ${u:++} ]] || USERNAME=$u >/dev/null 2>&1
-	unset HOME
-	git status --porcelain -sb 2>/dev/null)"}
+	for i in ${(@f)"$("$(command -v git_update 2>/dev/null || echo git)" \
+		status --porcelain -sb 2>/dev/null)"}
 	do	case $i[2] in
 		('#')	VCSBRANCH=${i[4,$#i]};;
 		(' ')	a+=$i[1];;
@@ -43,7 +41,8 @@ typeset -aU chpwd_functions
 typeset -aU precmd_functions
 chpwd_functions+=GitUpdateChpwd
 precmd_functions+=GitUpdatePrecmd
-GIT_UPDATE=:
+: ${GIT_UPDATE=:} ${GIT_UPDATE_USER=nobody}
+export GIT_UPDATE_USER
 if [[ ${1-} != '-n' ]]
 then	GitUpdateChpwd
 else	unset git_update_done
