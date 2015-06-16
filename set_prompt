@@ -5,14 +5,14 @@ unset LC_ALL
 LC_COLLATE=C
 
 name='set_prompt'
-config_file="${name}.config"
+config_file=$name.config
 
 Echo() {
-	printf '%s\n' "${*}"
+	printf '%s\n' "$*"
 }
 
 Echon() {
-	printf '%s' "${*}"
+	printf '%s' "$*"
 }
 
 zsh_escape="`printf '\033'`"
@@ -74,22 +74,22 @@ text_trail=' '
 
 # Colors for the configuration:
 
-color_user=${brown}
-color_at=${cyan}
-color_host_normal=${green}
-color_host_ssh=${lightred}
-color_separator=${cyan}
-color_errstatus=${lightred}
-color_errbrace=${brown}
-color_vcsbranchsep=${color_at}
-color_vcsbranch=${lightpurple}
-color_vcsstatussep=${color_at}
-color_vcsstatus=${red}
-color_vcsend=${default}
-color_dir=${lightgreen}
-color_dots=${blue}
-color_prompt=${yellow}
-color_trail=${default}
+color_user=$brown
+color_at=$cyan
+color_host_normal=$green
+color_host_ssh=$lightred
+color_separator=$cyan
+color_errstatus=$lightred
+color_errbrace=$brown
+color_vcsbranchsep=$color_at
+color_vcsbranch=$lightpurple
+color_vcsstatussep=$color_at
+color_vcsstatus=$red
+color_vcsend=$default
+color_dir=$lightgreen
+color_dots=$blue
+color_prompt=$yellow
+color_trail=$default
 color_endall=
 
 # All the above color_* variables must be listed here (without prefix color_)
@@ -118,14 +118,14 @@ endall'
 
 hstatus_status='%(?..:%?)'
 sstatus_status='%(?.. %?)'
-ps_status='%(?..${col_errbrace}(${col_errstatus}%?${col_errbrace}%))'
+ps_status='%(?..$col_errbrace($col_errstatus%?$col_errbrace%))'
 
 # Other indirect variables
 
-starthstatus='${escape}]0;'
-endhstatus='${charseven}'
+starthstatus='$escape]0;'
+endhstatus='$charseven'
 startsstatus='${escape}k'
-endsstatus='${escape}${backslash}'
+endsstatus='$escape$backslash'
 
 # List of indirect variables. The list can be modified in configuration.
 
@@ -151,10 +151,10 @@ zsh_ps_host='%m'
 # defines VAR as a (possibly) UTF8 symbol in the zsh prompt (1 character long).
 ZshUTF() {
 	if [ ${#2} -ne 1 ]
-	then	eval ${1}='"${zsh_ps_open}%G${2}${zsh_ps_close}"'
-	elif	[ "${2}" = '%' ]
-	then	eval ${1}='"%%"'
-	else	eval ${1}=\${2}
+	then	eval $1='"$zsh_ps_open%G$2$zsh_ps_close"'
+	elif	[ "$2" = '%' ]
+	then	eval $1='"%%"'
+	else	eval $1=\$2
 	fi
 }
 
@@ -166,13 +166,13 @@ ZshUTF() {
 ZshPs() {
 	zsh_ps_priv=${1:-#}
 	zsh_ps_prompt=${2:-%}
-	if [ "${zsh_ps_priv}" = '#' ] && [ "${zsh_ps_prompt}" = '%' ]
+	if [ "$zsh_ps_priv" = '#' ] && [ "$zsh_ps_prompt" = '%' ]
 	then	zsh_ps_prompt='%#'
 		return
 	fi
-	ZshUTF zsh_ps_priv "${zsh_ps_priv}"
-	ZshUTF zsh_ps_prompt "${zsh_ps_prompt}"
-	zsh_ps_prompt='%(!.'"${zsh_ps_priv}.${zsh_ps_prompt}"')'
+	ZshUTF zsh_ps_priv "$zsh_ps_priv"
+	ZshUTF zsh_ps_prompt "$zsh_ps_prompt"
+	zsh_ps_prompt='%(!.'"$zsh_ps_priv.$zsh_ps_prompt"')'
 }
 
 # We default to "&" for a privileged zsh to disinguish it from bash
@@ -202,8 +202,8 @@ ps_prompt'
 
 Usage() {
 	Echo \
-"Usage: temp=\$(${name} [options] [args for ${config_file}]; echo X) "'\
-    && PS1=${temp%X} ; [ -z "${ZSH_NAME}" ] || setopt promptsubst'"
+"Usage: temp=\$($name [options] [args for $config_file]; echo X) "'\
+    && PS1=${temp%X} ; [ -z "$ZSH_NAME" ] || setopt promptsubst'"
 options:
 -b Output for bash instead of zsh (implies -VE)
 -r Use readable (non-binary) output. Use printf '%s' or echo -E for output.
@@ -217,7 +217,7 @@ options:
 -E Do not show error status
 -h Show this help text
 -e TEXT   Use extra TEXT (instead of separator)
--c FILE   Source FILE instead of ${config_file}; empty value skips sourcing
+-c FILE   Source FILE instead of $config_file; empty value skips sourcing
 -l MAXLEN Allow directory path to grow maximal to MAXLEN (0 means no limit)
 -L LEFT   Keep at least LEFT characters of directory path before the dots
 --        last option" >&2
@@ -237,10 +237,10 @@ leftkeep=8
 unset extra_text
 OPTIND=1
 while getopts 'rEe:sSxXCbvVl:L:c:hH?' arg
-do	case ${arg} in
+do	case $arg in
 	r)	readable=:;;
 	E)	skipstatus=:;;
-	e)	extra_text=${OPTARG};;
+	e)	extra_text=$OPTARG;;
 	s)	softstatus=:;;
 	S)	softstatus=false;;
 	x)	hardstatus=:;;
@@ -250,45 +250,45 @@ do	case ${arg} in
 		vcs=false;;
 	v)	vcs=:;;
 	V)	vcs=false;;
-	l)	maxlen=${OPTARG};;
-	L)	leftkeep=${OPTARG};;
-	c)	config_file=${OPTARG};;
+	l)	maxlen=$OPTARG;;
+	L)	leftkeep=$OPTARG;;
+	c)	config_file=$OPTARG;;
 	*)	Usage;;
 	esac
 done
-shift $(( ${OPTIND} - 1 ))
+shift $(( $OPTIND - 1 ))
 
 # We define some functions early so that they can be used/modified in the
 # configuration if required.
 
 StripVars() {
-	if ${zsh}
+	if $zsh
 	then	prevar='zsh_'
 	else	prevar='bash_'
 	fi
-	for var in ${strip_vars}
-	do	eval ${var}=\${${prevar}${var}}
+	for var in $strip_vars
+	do	eval $var=\${$prevar$var}
 	done
 }
 
 ColorVars() {
-	for var in ${color_vars}
-	do	eval "if ${color} && [ -n \"\${color_${var}:++}\" ]
-		then	${zsh_readable} && case \${color_${var}} in
+	for var in $color_vars
+	do	eval "if $color && [ -n \"\${color_$var:++}\" ]
+		then	$zsh_readable && case \${color_$var} in
 			*' '*)
-				color_${var}=\${color_${var}#* };;
+				color_$var=\${color_$var#* };;
 			*)
-				color_${var}=\${escape}\${color_${var}};;
-			esac || color_${var}=\${escape}\${color_${var}%% *}
-			col_${var}=\${ps_open}\${color_${var}}\${ps_close}
-		else	col_${var}=
+				color_$var=\$escape\${color_$var};;
+			esac || color_$var=\$escape\${color_$var%% *}
+			col_$var=\$ps_open\${color_$var}\$ps_close
+		else	col_$var=
 		fi"
 	done
 }
 
 IndirectVars() {
-	for var in ${indirect_vars}
-	do	eval eval ${var}=\\\"\${${var}}\\\"
+	for var in $indirect_vars
+	do	eval eval $var=\\\"\$$var\\\"
 	done
 }
 
@@ -304,46 +304,46 @@ HandleVars() {
 }
 
 if [ -n "${config_file:++}" ]
-then	PATH="${PATH}${PATH:+:}/usr/local/etc:/etc:" . "${config_file}"
+then	PATH=$PATH${PATH:+:}/usr/local/etc:/etc: . "$config_file"
 fi
 
 NumberOrNull() {
-	eval "case \${${1}:-x} in
-	*[!0-9]*)	${1}=0;;
+	eval "case \${$1:-x} in
+	*[!0-9]*)	$1=0;;
 	esac"
 }
 
 NumberOrNull maxlen
 
-if ${zsh}
-then	zsh_readable=${readable}
+if $zsh
+then	zsh_readable=$readable
 else	zsh_readable=false
 	skipstatus=:
 fi
 
-if ! ${readable}
-then	bash_escape=${zsh_escape}
-	bash_charseven=${zsh_charseven}
-elif ${zsh}
+if ! $readable
+then	bash_escape=$zsh_escape
+	bash_charseven=$zsh_charseven
+elif $zsh
 then	zsh_escape='`printf '\''\e'\''`'
 	zsh_charseven='`printf '\''\a'\''`'
-	zsh_backslash=${bash_backslash}
+	zsh_backslash=$bash_backslash
 fi
 
 HandleVars
 
 if [ "${extra_text:+set}" = set ]
-then	separator=${extra_text}
+then	separator=$extra_text
 fi
 
 if [ -z "${SSH_TTY:++}${SSH_CONNECTION:++}" ]
-then	col_host=${col_host_normal}
-else	col_host=${col_host_ssh}
+then	col_host=$col_host_normal
+else	col_host=$col_host_ssh
 fi
 
 if [ -z "${softstatus:++}" ]
 then	softstatus=false
-	case ${TERM} in
+	case $TERM in
 	screen*)
 		softstatus=:;;
 	esac
@@ -351,82 +351,82 @@ fi
 
 if [ -z "${hardstatus:++}" ]
 then	hardstatus=false
-	case ${TERM} in
+	case $TERM in
 	xterm*|screen*|rxvt*|aterm*|konsole*|gnome*|Eterm*|kterm*|interix*)
 		hardstatus=:;;
 	esac
 fi
 
-if [ ${maxlen} -gt 0 ]
-then	statusdir='${d}'
-	ps_dir='${c}'
-else	statusdir=${ps_dir}
+if [ $maxlen -gt 0 ]
+then	statusdir='$d'
+	ps_dir='$c'
+else	statusdir=$ps_dir
 fi
 
 ps=
-if ${hardstatus} || ${softstatus}
-then	status_both=${ps_user}${text_at}${ps_host}${extra_text}${statusdir}
-	if ${softstatus}
-	then	ps=${ps}${startsstatus}${status_both}
-		${skipstatus} || ps=${ps}${sstatus_status}
-		ps=${ps}${endsstatus}
+if $hardstatus || $softstatus
+then	status_both=$ps_user$text_at$ps_host$extra_text$statusdir
+	if $softstatus
+	then	ps=$ps$startsstatus$status_both
+		$skipstatus || ps=$ps$sstatus_status
+		ps=$ps$endsstatus
 	fi
-	if ${hardstatus}
-	then	ps=${ps}${starthstatus}${status_both}
-		${skipstatus} || ps=${ps}${hstatus_status}
-		ps=${ps}${endhstatus}
+	if $hardstatus
+	then	ps=$ps$starthstatus$status_both
+		$skipstatus || ps=$ps$hstatus_status
+		ps=$ps$endhstatus
 	fi
 fi
 
 if [ -n "${ps:++}" ]
-then	ps=${ps_open}${ps}${color_user}${ps_close}
-else	ps=${col_user}
+then	ps=$ps_open$ps$color_user$ps_close
+else	ps=$col_user
 fi
 
-ps=${ps}${ps_user}${col_at}${text_at}${col_host}${ps_host}
-ps=${ps}${col_separator}${separator}${col_dir}${ps_dir}
-${skipstatus} || ps=${ps}${ps_status}
-if ${vcs}
-then	ps="${ps}\${VCSBRANCH:+\"${col_vcsbranchsep}${text_vcsbranchsep}"
-	ps="${ps}${col_vcsbranch}\${VCSBRANCH}${col_vcsend}\"}"
-	ps="${ps}\${VCSSTATUS:+\"${col_vcsstatussep}${text_vcsstatussep}"
-	ps="${ps}${col_vcsstatus}\${VCSSTATUS}${col_vcsend}\"}"
+ps=$ps$ps_user$col_at$text_at$col_host$ps_host
+ps=$ps$col_separator$separator$col_dir$ps_dir
+$skipstatus || ps=$ps$ps_status
+if $vcs
+then	ps="$ps\${VCSBRANCH:+\"$col_vcsbranchsep$text_vcsbranchsep"
+	ps="$ps$col_vcsbranch\$VCSBRANCH$col_vcsend\"}"
+	ps="$ps\${VCSSTATUS:+\"$col_vcsstatussep$text_vcsstatussep"
+	ps="$ps$col_vcsstatus\$VCSSTATUS$col_vcsend\"}"
 fi
-ps=${ps}${col_prompt}${ps_prompt}${col_trail}${text_trail}${col_endall}
-if [ ${maxlen} -gt 0 ]
-then	[ ${maxlen} -gt ${#text_dots} ] || maxlen=${#text_dots}
-	leftmax=$(( ${maxlen} - ${#text_dots} ))
+ps=$ps$col_prompt$ps_prompt$col_trail$text_trail$col_endall
+if [ $maxlen -gt 0 ]
+then	[ $maxlen -gt ${#text_dots} ] || maxlen=${#text_dots}
+	leftmax=$(( $maxlen - ${#text_dots} ))
 	NumberOrNull leftkeep
-	[ ${leftkeep} -le ${leftmax} ] || leftkeep=${leftmax}
-	rightkeep=$(( ${maxlen} - ${leftkeep} - ${#text_dots} ))
+	[ $leftkeep -le $leftmax ] || leftkeep=$leftmax
+	rightkeep=$(( $maxlen - $leftkeep - ${#text_dots} ))
 	d2=
 	d3=
-	if ${zsh}
+	if $zsh
 	then	d1='d=$(print -P '\''%~'\'')'
-		if [ ${leftkeep} -eq 1 ]
+		if [ $leftkeep -eq 1 ]
 		then	d2='${d[1]}'
-		elif [ ${leftkeep} -gt 1 ]
-		then	d2='${d[1,'"${leftkeep}"']}'
+		elif [ $leftkeep -gt 1 ]
+		then	d2='${d[1,'"$leftkeep"']}'
 		fi
-		if [ ${rightkeep} -gt 0 ]
-		then	rightkeep=$(( ${rightkeep} - 1 ))
-			if [ ${rightkeep} -eq 0 ]
+		if [ $rightkeep -gt 0 ]
+		then	rightkeep=$(( $rightkeep - 1 ))
+			if [ $rightkeep -eq 0 ]
 			then	d3='${d[${#d}]}'
-			else	d3='${d[${#d}-'"${rightkeep}"',${#d}]}'
+			else	d3='${d[${#d}-'"$rightkeep"',${#d}]}'
 			fi
 		fi
 	else	d1='d=${PWD#~}
-[ "${d}" = "${PWD}" ] || d="~${d}"'
-		[ ${leftkeep} -le 0 ] || d2='${d:0:'"${leftkeep}"'}'
-		[ ${rightkeep} -le 0 ] || d3='${d: -'"${rightkeep}"'}'
+[ "$d" = "$PWD" ] || d="~$d"'
+		[ $leftkeep -le 0 ] || d2='${d:0:'"$leftkeep"'}'
+		[ $rightkeep -le 0 ] || d3='${d: -'"$rightkeep"'}'
 	fi
 	ps="\$(unset c d
-${d1}
-if [ \${#d} -le ${maxlen} ]
-then	c=\${d}
-else	c=\"${d2}${col_dots}${text_dots}${col_dir}${d3}\"
-	d=\"${d2}${text_dots}${d3}\"
+$d1
+if [ \${#d} -le $maxlen ]
+then	c=\$d
+else	c=\"$d2$col_dots$text_dots$col_dir$d3\"
+	d=\"$d2$text_dots$d3\"
 fi
-printf '%s' \"${ps}\")"
+printf '%s' \"$ps\")"
 fi
-Echon "${ps}"
+Echon "$ps"

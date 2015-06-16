@@ -78,7 +78,7 @@ git_prompt.zsh has some mechanisms to avoid this problem:
 git_update will attempt to change to the user GIT_UPDATE_USER (default: nobody)
 and unset the HOME directory; it will fail if this does not succeeed.
 To suppress this security mechanism,
-	export GIT_UPDATE_USER=""
+	export GIT_UPDATE_USER=
 
 git_update is a separate command so that you can adapt it to your needs and
 you can also use it other programs.

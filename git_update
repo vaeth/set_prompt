@@ -1,6 +1,6 @@
 #!/usr/bin/env zsh
 Die() {
-	printf '%s\n' "${0##*/}: ${@}" >&2
+	printf '%s\n' "${0##*/}: $@" >&2
 	exit 1
 }
 c=$USERNAME
@@ -11,4 +11,4 @@ then	USERNAME=$u >/dev/null 2>&1
 export GIT_UPDATE_USER='' to keep permissions"
 	unset HOME
 fi
-exec git "${@}"
+exec git "$@"

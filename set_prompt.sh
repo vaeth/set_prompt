@@ -11,10 +11,10 @@
 # set_prompt.config to denote that we want special colors for a changed host
 
 set_prompt() {
-	[ -z "${HOSTTEXT:++}" ] || set -- -e "(${HOSTTEXT})" "${@}"
-	[ "${HOSTTEXTSAVE}" = "${HOSTTEXT}" ] || set -- "${@}" 1
+	[ -z "${HOSTTEXT:++}" ] || set -- -e "($HOSTTEXT)" "$@"
+	[ "$HOSTTEXTSAVE" = "$HOSTTEXT" ] || set -- "$@" 1
 	local t
-	t="$(PATH="${PATH}:." . set_prompt "${@}" && echo /)" && PS1="${t%/}"
+	t=$(PATH=$PATH:. . set_prompt "$@" && echo /) && PS1=${t%/}
 }
 
 # For bash, we patch the above function to add the arguments -b.
@@ -28,8 +28,8 @@ then	eval "$(funcdef=$(declare -f set_prompt)
 	else	args='-b'
 	fi
 	find='{'
-	replace="${find}
-set -- ${args} \"\${@}\"
+	replace="$find
+set -- $args \"\$@\"
 "
-	printf '%s' "${funcdef/${find}/${replace}}")"
+	printf '%s' "${funcdef/$find/$replace}")"
 fi
