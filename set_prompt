@@ -1,6 +1,6 @@
 #!/usr/bin/env sh
 # (C) Martin V\"ath <martin@mvath.de>
-
+set -u
 unset LC_ALL
 LC_COLLATE=C
 
@@ -234,7 +234,7 @@ hardstatus=
 vcs=':'
 maxlen=24
 leftkeep=8
-unset extra_text
+extra_text=
 OPTIND=1
 while getopts 'rEe:sSxXCbvVl:L:c:hH?' arg
 do	case $arg in
@@ -420,7 +420,8 @@ then	[ $maxlen -gt ${#text_dots} ] || maxlen=${#text_dots}
 		[ $leftkeep -le 0 ] || d2='${d:0:'"$leftkeep"'}'
 		[ $rightkeep -le 0 ] || d3='${d: -'"$rightkeep"'}'
 	fi
-	ps="\$(unset c d
+	ps="\$(c=
+d=
 $d1
 if [ \${#d} -le $maxlen ]
 then	c=\$d
