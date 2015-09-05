@@ -344,7 +344,7 @@ fi
 if [ -z "${softstatus:++}" ]
 then	softstatus=false
 	case $TERM in
-	screen*)
+	screen*|tmux*)
 		softstatus=:;;
 	esac
 fi
@@ -352,7 +352,7 @@ fi
 if [ -z "${hardstatus:++}" ]
 then	hardstatus=false
 	case $TERM in
-	xterm*|screen*|rxvt*|aterm*|konsole*|gnome*|Eterm*|kterm*|interix*)
+	xterm*|screen*|tmux*|rxvt*|aterm*|konsole*|gnome*|Eterm*|kterm*|interix*)
 		hardstatus=:;;
 	esac
 fi
