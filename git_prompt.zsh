@@ -4,6 +4,10 @@
 
 command -v git >/dev/null 2>&1 || return 0
 
+: ${VCSBRANCH=} ${VCSSTATUS=}
+: ${GIT_UPDATE=:} ${GIT_UPDATE_USER=nobody}
+export GIT_UPDATE_USER
+
 GitUpdate() {
 	VCSBRANCH=
 	VCSSTATUS=
@@ -32,18 +36,13 @@ GitUpdateChpwd() {
 
 GitUpdatePrecmd() {
 	if [[ -n ${VCSBRANCH:++}${VCSSTATUS:++} ]]
-	then	[[ -n ${git_update_done-} ]] \
-			&& unset git_update_done || GitUpdate
+	then	[[ -n ${git_update_done-} ]] && git_update_done= || GitUpdate
 	fi
 }
 
-typeset -aU chpwd_functions
-typeset -aU precmd_functions
-chpwd_functions+=GitUpdateChpwd
-precmd_functions+=GitUpdatePrecmd
-: ${GIT_UPDATE=:} ${GIT_UPDATE_USER=nobody}
-export GIT_UPDATE_USER
-if [[ ${1-} != '-n' ]]
-then	GitUpdateChpwd
-else	unset git_update_done
-fi
+autoload -Uz add-zsh-hook
+add-zsh-hook chpwd GitUpdateChpwd
+add-zsh-hook precmd GitUpdatePrecmd
+
+git_update_done=
+[[ ${1-} = '-n' ]] || GitUpdateChpwd

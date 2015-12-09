@@ -402,7 +402,11 @@ then	[ $maxlen -gt ${#text_dots} ] || maxlen=${#text_dots}
 	d2=
 	d3=
 	if $zsh
-	then	d1='d=$(REPLY=;print -P '\''%~'\'')'
+	then	# use locals to avoid warnings with setopt warn_create_global
+		open='$(() { local c d= REPLY='
+		close='
+})'
+		d1='d=$(print -P '\''%~'\'')'
 		if [ $leftkeep -eq 1 ]
 		then	d2='${d[1]}'
 		elif [ $leftkeep -gt 1 ]
@@ -415,19 +419,20 @@ then	[ $maxlen -gt ${#text_dots} ] || maxlen=${#text_dots}
 			else	d3='${d[${#d}-'"$rightkeep"',${#d}]}'
 			fi
 		fi
-	else	d1='d=${PWD#~}
+	else	open='$(d='
+		close=')'
+		d1='d=${PWD#~}
 [ "$d" = "$PWD" ] || d="~$d"'
 		[ $leftkeep -le 0 ] || d2='${d:0:'"$leftkeep"'}'
 		[ $rightkeep -le 0 ] || d3='${d: -'"$rightkeep"'}'
 	fi
-	ps="\$(c=
-d=
+	ps="$open
 $d1
 if [ \${#d} -le $maxlen ]
 then	c=\$d
 else	c=\"$d2$col_dots$text_dots$col_dir$d3\"
 	d=\"$d2$text_dots$d3\"
 fi
-printf '%s' \"$ps\")"
+printf '%s' \"$ps\"$close"
 fi
 Echon "$ps"
