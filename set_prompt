@@ -152,7 +152,7 @@ zsh_ps_host='%m'
 ZshUTF() {
 	if [ ${#2} -ne 1 ]
 	then	eval $1='"$zsh_ps_open%G$2$zsh_ps_close"'
-	elif	[ "$2" = '%' ]
+	elif	[ x"$2" = x'%' ]
 	then	eval $1='"%%"'
 	else	eval $1=\$2
 	fi
@@ -166,7 +166,7 @@ ZshUTF() {
 ZshPs() {
 	zsh_ps_priv=${1:-#}
 	zsh_ps_prompt=${2:-%}
-	if [ "$zsh_ps_priv" = '#' ] && [ "$zsh_ps_prompt" = '%' ]
+	if [ x"$zsh_ps_priv" = x'#' ] && [ x"$zsh_ps_prompt" = x'%' ]
 	then	zsh_ps_prompt='%#'
 		return
 	fi
@@ -332,7 +332,7 @@ fi
 
 HandleVars
 
-if [ "${extra_text:+set}" = set ]
+if [ -n "${extra_text:++}" ]
 then	separator=$extra_text
 fi
 
