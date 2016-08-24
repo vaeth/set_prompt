@@ -68,8 +68,6 @@ conceal='[8m'
 
 text_at='@'
 text_dots='...'
-text_vcsbranchsep=':'
-text_vcsstatussep=':'
 text_trail=' '
 
 # Colors for the configuration:
@@ -81,11 +79,6 @@ color_host_ssh=$lightred
 color_separator=$cyan
 color_errstatus=$lightred
 color_errbrace=$brown
-color_vcsbranchsep=$color_at
-color_vcsbranch=$lightpurple
-color_vcsstatussep=$color_at
-color_vcsstatus=$red
-color_vcsend=$default
 color_dir=$lightgreen
 color_dots=$blue
 color_prompt=$yellow
@@ -103,11 +96,6 @@ host_ssh
 separator
 errstatus
 errbrace
-vcsbranchsep
-vcsbranch
-vcsstatussep
-vcsstatus
-vcsend
 dir
 dots
 prompt
@@ -212,8 +200,8 @@ options:
 -x Use hardstatus line (even if TERM is not in the supported list)
 -S Do not use screen statusline
 -X No hardstatus line
--v Support VCSBRANCH/VCSSTATUS (even with -b)
--V Do not support VCSBRANCH/VCSSTATUS
+-v Support \$vcs_info_msg_0_ (even with -b)
+-V Do not support \$vcs_info_msg_0_
 -E Do not show error status
 -h Show this help text
 -e TEXT   Use extra TEXT (instead of separator)
@@ -386,12 +374,7 @@ fi
 ps=$ps$ps_user$col_at$text_at$col_host$ps_host
 ps=$ps$col_separator$separator$col_dir$ps_dir
 $skipstatus || ps=$ps$ps_status
-if $vcs
-then	ps="$ps\${VCSBRANCH:+\"$col_vcsbranchsep$text_vcsbranchsep"
-	ps="$ps$col_vcsbranch\$VCSBRANCH$col_vcsend\"}"
-	ps="$ps\${VCSSTATUS:+\"$col_vcsstatussep$text_vcsstatussep"
-	ps="$ps$col_vcsstatus\$VCSSTATUS$col_vcsend\"}"
-fi
+! $vcs || ps=$ps\${vcs_info_msg_0_-}
 ps=$ps$col_prompt$ps_prompt$col_trail$text_trail$col_endall
 if [ $maxlen -gt 0 ]
 then	[ $maxlen -gt ${#text_dots} ] || maxlen=${#text_dots}

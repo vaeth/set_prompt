@@ -56,29 +56,26 @@ output directly to PS1 and that appropriate options are used by default.
 The set_prompt.sh script makes use of particular variables, so you might
 want to look at the source and modify it for your needs before using it.
 
-Finally, the prompt supports also the variables VCSBRANCH and VCSSTATUS
-which might be changed for each prompt. For zsh, there is also a script
+Finally, the prompt supports also the variable $vcs_info_msg_0_ for zsh (or
+optionally also for bash, although bash does not support it out-of-the-box):
+This variable is set by vcs_info ("man zshcontrib" for help on the latter).
+There is an example script
 	git_prompt.zsh
-which, if sourced, sets VCSBRANCH and VCSSTATUS correspondingly whenever
-you change into (or out of) a git directory to inform you in the prompt
-about the git state corresponding to your current directory.
+which, if sourced in zsh, activats the mechanism for vcs_info.
 
-Note that if you use git_prompt.zsh (especially, if you do this as root)
-this has some serious security implications:
+The configuration from git_prompt.zsh uses "git_update" instead of "git"
+if git_update is in your $PATH:
 
-To obtain the status, git_prompt.zsh must execute "git status" which
-might do unpredictable things with a specially crafted top-level .git
-directory. Thus, even a mere "cd" as root might be dangerous if
-git_prompt.zsh would take no measurements!
-Moreover, unfortunately, "git status" (with current git versions)
-usually writes into the top-level .git directory which allows symlink attacks.
-git_prompt.zsh has some mechanisms to avoid this problem:
+For security reasons, it is recommended to copy git_update into your $PATH,
+because the latter will attempt to change (drop) permissions to those of
+GIT_UPDATE_USER (defaults to nobody).
+If git_update fails to change the permissions, git is _not_ invoked for
+security reasons. To drop this security measurement of git_update, you
+can export an empty GIT_UPDATE_USER.
 
-(1) Most important: git_update is used instead of git if it is in the path.
-git_update will attempt to change to the user GIT_UPDATE_USER (default: nobody)
-and unset the HOME directory; it will fail if this does not succeeed.
-To suppress this security mechanism,
-	export GIT_UPDATE_USER=
+Since most users without privileges will want to support such an empty
+GIT_UPDATE_USER, git_prompt.zsh will do this for you if it is not possible to
+drop permissions to the user "nobody".
 
 git_update is a separate command so that you can adapt it to your needs and
 you can also use it other programs.
@@ -86,37 +83,3 @@ you can also use it other programs.
 For example, if you are an emacs user, you might want to put
 	(setq vc-git-program "git_update")
 into your ~/.emacs to get the same security mechanism also for emacs.
-
-(2) You can optionally define a function/command "GitUpdateUser".
-If you have done so, this function/command is executed in the running zsh
-instance every time before "git status" is called.
-If this function returns a nonzero exit status, "git status" is skipped.
-Thus, you can use this function to decide on a case-by-case basis
-(e.g. depending on the current directory) whether to skip "git status".
-This function is called before (1); hence you can use this function also
-e.g. to set GIT_UPDATE_USER to the owner of the current directory
-(or of the current top-level .git directory).
-
-(3) Normally, git_prompt.zsh sets GIT_UPDATE and GIT_UPDATE_USER=nobody
-when being sourced and when these variables are not yet set.
-If you want to disable the functionality of the script, just unset GIT_UPDATE
-(or set it to "false" or to an empty value). You can set GIT_UPDATE later on
-again to reenable the functionality. Note that (1) and (2) are unnecessary
-(and thus skipped) if GIT_UPDATE is unset.
-
-(4) If you do not have a "git" command, sourcing of the script does nothing.
-Thus, under normal circumstances, you need not check first whether git is
-installed. Note that GIT_UPDATE will not be set if git is not installed;
-thus you can just check this variable after sourcing if you want to know that.
-
-(5) Recall that when sourcing in zsh you can pass local arguments like so:
-	. git_prompt.zsh [arguments]
-Normally, the script behaves as if you just changed into the current directory,
-i.e. "git status" is called immediately (with (1) and (2) as above) to update
-VCSBRANCH and VCSSTATUS immediately.
-You can avoid this by passing -n as the first argument. This can be useful if
-e.g. you want to check the variable GIT_UPDATE before setting up the
-GIT_UPDATE_USER variable or the GitUpdateUser command (see (1) and (2)) and
-not risking any security issues. In this case you can afterwards activate
-the script by calling "cd ."
-
