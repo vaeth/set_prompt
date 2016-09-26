@@ -224,7 +224,7 @@ maxlen=24
 leftkeep=8
 extra_text=
 OPTIND=1
-while getopts 'rEe:sSxXCbvVl:L:c:hH?' arg
+while getopts 'rEe:sSxXCbvVl:L:c:hH' arg
 do	case $arg in
 	r)	readable=:;;
 	E)	skipstatus=:;;
@@ -241,7 +241,8 @@ do	case $arg in
 	l)	maxlen=$OPTARG;;
 	L)	leftkeep=$OPTARG;;
 	c)	config_file=$OPTARG;;
-	*)	Usage;;
+	'?')	exit 1;;
+	*)	Usage 0;;
 	esac
 done
 shift $(( $OPTIND - 1 ))
@@ -297,7 +298,8 @@ fi
 
 NumberOrNull() {
 	eval "case \${$1:-x} in
-	*[!0-9]*)	$1=0;;
+	*[!0123456789]*)
+		$1=0;;
 	esac"
 }
 
