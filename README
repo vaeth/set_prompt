@@ -24,6 +24,8 @@ A configuration file is supported in which you can easily customize the prompt
 To install these scripts, copy them somewhere into your $PATH;
 the default configuration set_prompt.config can alternatively
 also be copied into /usr/local/etc or /etc.
+To get support for zsh completion, put the files of the subdirectory zsh
+into your $fpath.
 For Gentoo, there is an ebuild in the mv overlay (available by layman).
 
 The main program is

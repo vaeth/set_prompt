@@ -1,0 +1,19 @@
+#compdef set_prompt
+_arguments -s -S -A '-*' : \
+'(* -)'{'-h','-H'}'[help]' \
+'(* -)-n[print version number and exit]' \
+'(-v -V -E)-b[Output for bash instead of zsh (implies -VE)]' \
+'-r[Use readable output for printf '%s' or echo -E]' \
+'-C[No colorized prompt]' \
+'(-S)-s[Use screen statusline]' \
+'(-X)-x[Use hardstatus line]' \
+'(-s)-S[Do not use screen statusline]' \
+'(-x)-X[No hardstatus line]' \
+'(-V)-v[Support $vcs_info_msg_0_]' \
+'(-v)-V[Do not support $vcs_info_msg_0_]' \
+'-E[Do not show error status]' \
+'-e+[Use specified separator]:separator:(\@)' \
+'-c+[Source specifie file as config]:file:_files' \
+'-l+[Allow path with specified max len]:maxlen:(0 24)' \
+'-L+[Keep on the left specified number of path chars]:keep left:(8)' \
+'*::arg for configfile'

@@ -4,8 +4,9 @@ set -u
 unset LC_ALL
 LC_COLLATE=C
 
-name='set_prompt'
+name=set_prompt
 config_file=$name.config
+version=v2.1.0
 
 Echo() {
 	printf '%s\n' "$*"
@@ -192,7 +193,7 @@ Usage() {
 	Echo \
 "Usage: temp=\$($name [options] [args for $config_file]; echo X) "'\
     && PS1=${temp%X} ; [ -z "$ZSH_NAME" ] || setopt promptsubst'"
-options:
+Options:
 -b Output for bash instead of zsh (implies -VE)
 -r Use readable (non-binary) output. Use printf '%s' or echo -E for output.
 -C No colorized prompt
@@ -208,8 +209,18 @@ options:
 -c FILE   Source FILE instead of $config_file; empty value skips sourcing
 -l MAXLEN Allow directory path to grow maximal to MAXLEN (0 means no limit)
 -L LEFT   Keep at least LEFT characters of directory path before the dots
+-n print version number and exit
 --        last option" >&2
 	exit ${1:-1}
+}
+
+Version() {
+	if test -t 1
+	then	Echo "$name $version"
+		exit 0
+	fi
+	Echo "$name $version" >&2
+	exit 1
 }
 
 readable=false
@@ -224,7 +235,7 @@ maxlen=24
 leftkeep=8
 extra_text=
 OPTIND=1
-while getopts 'rEe:sSxXCbvVl:L:c:hH' arg
+while getopts 'rEe:sSxXCbvVl:L:c:nhH' arg
 do	case $arg in
 	r)	readable=:;;
 	E)	skipstatus=:;;
@@ -241,6 +252,7 @@ do	case $arg in
 	l)	maxlen=$OPTARG;;
 	L)	leftkeep=$OPTARG;;
 	c)	config_file=$OPTARG;;
+	n)	Version;;
 	'?')	exit 1;;
 	*)	Usage 0;;
 	esac
