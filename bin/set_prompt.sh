@@ -1,9 +1,8 @@
-#!/usr/bin/env sh
+#!/usr/bin/env cat
 # (C) Martin V\"ath <martin@mvath.de>
 #
-# The first line is only for editors.
-# This is an example script meant to be sourced by zsh or bash
-# if in interactive mode.
+# This sample script is meant to be evaluated by zsh or bash (or the script
+# sourced) if in interactive mode.
 
 # In this example, HOSTTEXT is an additional information about the HOST,
 # and HOSTTEXTSAVE provides the previous such information.

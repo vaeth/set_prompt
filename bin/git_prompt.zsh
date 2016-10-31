@@ -1,5 +1,5 @@
-#!/bin/zsh
-# The above line is only meant for editors
+#!/usr/bin/env cat
+# This output should be evaluated by zsh (or this file be sourced by zsh)
 # (C) Martin V\"ath <martin@mvath.de>
 
 () {

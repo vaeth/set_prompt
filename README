@@ -50,7 +50,20 @@ So you should customize that file for your taste (e.g. to define the colors).
 
 There is a sample script
 	set_prompt.sh
-which, if sourced, defines a function
+for bash and zsh. You can either execute it and "eval" the output, like e.g.
+
+if SOME_VARIABLE=`set_prompt.sh 2>/dev/null`
+then	eval "$SOME_VARIABLE"
+else	echo "set_prompt.sh not found" >&2
+fi
+
+or you can source it with
+
+. set_prompt.sh
+
+The latter has the disadvantage that it will die with an error if
+set_prompt.sh cannot be found.
+The above eval/sourcing of set_prompt.sh defines a function
 	set_prompt
 which acts like the set_prompt program with the difference that is sends the
 output directly to PS1 and that appropriate options are used by default.
@@ -63,7 +76,8 @@ optionally also for bash, although bash does not support it out-of-the-box):
 This variable is set by vcs_info ("man zshcontrib" for help on the latter).
 There is an example script
 	git_prompt.zsh
-which, if sourced in zsh, activats the mechanism for vcs_info.
+which can be either treated with "eval" or sourced, similarly as set_prompt.sh
+above. This script will then activate the mechanism for vcs_info.
 
 The configuration from git_prompt.zsh uses "git_update" instead of "git"
 if git_update is in your $PATH:
