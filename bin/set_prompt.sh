@@ -12,8 +12,9 @@
 set_prompt() {
 	[ -z "${HOSTTEXT:++}" ] || set -- -e "($HOSTTEXT)" "$@"
 	[ "$HOSTTEXTSAVE" = "$HOSTTEXT" ] || set -- "$@" 1
-	local t
-	t=$(PATH=$PATH:. . set_prompt "$@" && echo /) && PS1=${t%/}
+	local t=
+	t=$(PATH=$PATH:. . set_prompt "$@" && echo /) || return
+	[ -z "${t%/}" ] || PS1=${t%/}
 }
 
 # For bash, we patch the above function to add the arguments -b.

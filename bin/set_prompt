@@ -338,10 +338,7 @@ if [ -n "${extra_text:++}" ]
 then	separator=$extra_text
 fi
 
-if [ -z "${SSH_TTY:++}${SSH_CONNECTION:++}" ]
-then	col_host=$col_host_normal
-else	col_host=$col_host_ssh
-fi
+col_host=$col_host_normal'${SSH_CONNECTION:+"'$col_host_ssh'"}'
 
 if [ -z "${softstatus:++}" ]
 then	softstatus=false
