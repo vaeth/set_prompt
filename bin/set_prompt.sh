@@ -1,5 +1,6 @@
 #!/usr/bin/env cat
-# (C) Martin V\"ath <martin@mvath.de>
+# (C) Martin V\"ath <martin at mvath.de>
+# SPDX-License-Identifier: BSD-3-Clause
 #
 # This sample script is meant to be evaluated by zsh or bash (or the script
 # sourced) if in interactive mode.

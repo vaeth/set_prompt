@@ -1,6 +1,7 @@
 #!/usr/bin/env cat
 # This output should be evaluated by zsh (or this file be sourced by zsh)
-# (C) Martin V\"ath <martin@mvath.de>
+# (C) Martin V\"ath <martin at mvath.de>
+# SPDX-License-Identifier: BSD-3-Clause
 
 () {
 	local s1 s2
